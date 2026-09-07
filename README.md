@@ -4,17 +4,34 @@ This repository builds Android 17 TV for the Orange Pi 5 v1.2. The legacy
 upstream source and target directories remain named `opi5_pro`, but generated
 images target the Orange Pi 5 and use `rk3588s-orangepi-5.dtb`.
 
-## What works
+## Feature highlights
+
+- Hardware-accelerated 4K60 video playback, including a hardware-verified AV1
+  3840 x 2160 at 60 fps path, with native 4K display output and HDMI 2.0 support
+- End-to-end video color handling for full and limited range, BT.601, BT.709,
+  BT.2020, PQ, and HLG metadata
+- An interactive Bluetooth audio-sync tuner with a synchronized visual
+  metronome and tick/tock track, live 10 ms adjustments, and Auto, Relative,
+  and Absolute latency controls
+- Persistent selection of built-in, HDMI/eARC, USB, A2DP, or LE Audio output,
+  with automatic fallback while a preferred device is absent and restoration
+  when it returns
+- A persistent five-band system-wide equalizer with custom, Voice clarity, and
+  Night presets across every output path
+- A global right-side quick menu for Sleep Now, Restart, Audio Output,
+  Equalizer, Apps, and Settings, opened from a remote's standard Menu key
+- Genuine suspend-to-RAM deep sleep—not display-only standby—with wake from the
+  power key, supported USB keyboards/remotes, and Bluetooth HID remotes
+- USB Wi-Fi and Bluetooth integration, including packaged adapter firmware,
+  adapter-aware Settings, Wi-Fi MAC/link-speed details, saved Bluetooth media
+  volume, and A2DP reconnection after suspend
+
+## Additional tested functionality
 
 The following have been exercised on an Orange Pi 5 v1.2 with 8 GB RAM:
 
 - NVMe boot and guarded whole-disk or partition flashing
-- HDMI video and audio
 - Built-in Ethernet, including MAC-address display in Settings
-- USB Wi-Fi with the packaged Realtek and MediaTek firmware and Android's Wi-Fi UI
-- USB Bluetooth, Bluetooth HID remotes, A2DP audio, and saved audio routing
-- Suspend and resume from the power key, USB keyboard/remote, and Bluetooth remote
-- The right-side quick menu, power actions, audio-output selection, and equalizer
 - Ethernet ADB using a repository-local, pre-authorized public key
 
 ## Known limitations
@@ -32,7 +49,10 @@ The following have been exercised on an Orange Pi 5 v1.2 with 8 GB RAM:
 
 ## Media support
 
-The Codec2 FFmpeg service registers these decoders:
+The Codec2 FFmpeg service exposes these decoders. Video decoding uses the
+RK3588's stateless V4L2-request hardware wherever the codec and stream are
+supported; RGA3 and DRM planes accelerate conversion and presentation. Streams
+outside a supported hardware path fall back safely to software where feasible.
 
 | Media | Codecs | Advertised limits |
 | --- | --- | --- |
@@ -42,11 +62,13 @@ The Codec2 FFmpeg service registers these decoders:
 | Video | H.263, MPEG-2, MPEG-4, VP8 | Up to 2048 x 2048 |
 
 These are codec-advertisement limits, not guarantees that every profile,
-bitrate, resolution, and frame rate will play in real time. The RK3588-specific
-media work includes stateless V4L2-request HEVC decoding, direct AV1 graphic
-buffers, recovery from undersized AV1 hardware frame pools, and RGA3 conversion
-for compact NV15 and strided NV12 surfaces. RGA imports and conversions have
-safe fallbacks, and Codec2 tolerates streams that omit frame timestamps.
+bitrate, resolution, and frame rate will play in real time. Hardware-accelerated
+AV1 playback at 3840 x 2160 and 60 fps has been validated on the target board.
+The RK3588-specific media work includes stateless V4L2-request HEVC decoding,
+direct AV1 graphic buffers, recovery from undersized AV1 hardware frame pools,
+and RGA3 conversion for compact NV15 and strided NV12 surfaces. RGA imports and
+conversions have safe fallbacks, and Codec2 tolerates streams that omit frame
+timestamps.
 
 Decoded full/limited range, color primaries, transfer characteristics, and
 matrix coefficients are propagated from FFmpeg into Codec2. Mappings cover

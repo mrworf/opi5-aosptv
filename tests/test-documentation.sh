@@ -29,6 +29,15 @@ done
 
 grep -Fq 'This repository builds Android 17 TV for the Orange Pi 5 v1.2.' README.md
 grep -Fq 'may wake the device without a remote key being pressed' README.md
+grep -Fq 'Hardware-accelerated 4K60 video playback' README.md
+grep -Fq 'AV1 playback at 3840 x 2160 and 60 fps has been validated' README.md
+grep -Fq 'synchronized visual' README.md
+grep -Fq 'Auto, Relative,' README.md
+grep -Fq 'Persistent selection of built-in, HDMI/eARC, USB, A2DP, or LE Audio output' README.md
+grep -Fq 'five-band system-wide equalizer' README.md
+grep -Fq 'A global right-side quick menu' README.md
+grep -Fq 'Genuine suspend-to-RAM deep sleep' README.md
+grep -Fq "stateless V4L2-request hardware wherever the codec and stream are" README.md
 grep -Fq 'https://github.com/mlm-games/flicky' README.md
 grep -Fq 'https://github.com/mlm-games/flicky/releases/tag/4.5.2' README.md
 grep -Fq 'GNU GPL v3.0 only' README.md
