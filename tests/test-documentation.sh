@@ -27,7 +27,9 @@ for phrase in "${prohibited[@]}"; do
   fi
 done
 
-grep -Fq 'This repository builds Android 17 TV for the Orange Pi 5 v1.2.' README.md
+grep -Fq 'This repository builds an open-source Android 17 AOSP TV image for the Orange' README.md
+grep -Fq 'Pi 5 v1.2.' README.md
+grep -Fq 'Flicky as its TV-friendly F-Droid store client' README.md
 grep -Fq 'may wake the device without a remote key being pressed' README.md
 grep -Fq 'Hardware-accelerated 4K60 video playback' README.md
 grep -Fq 'AV1 playback at 3840 x 2160 and 60 fps has been validated' README.md

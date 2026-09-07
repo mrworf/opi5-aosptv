@@ -9,8 +9,8 @@ client.
 ## Scope
 
 Update the controller README and customization guidance only. Preserve Flicky
-license, pinned artifact, signature, source, and update details. Do not discuss
-certification, private repositories, or availability of custom builds.
+license, pinned artifact, signature, source, and update details. Keep the text
+focused on the standard OSS image and the generic customization interface.
 
 ## Dependencies and behavior
 

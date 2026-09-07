@@ -1,8 +1,10 @@
-# Orange Pi 5 Android TV
+# Orange Pi 5 AOSP TV
 
-This repository builds Android 17 TV for the Orange Pi 5 v1.2. The legacy
-upstream source and target directories remain named `opi5_pro`, but generated
-images target the Orange Pi 5 and use `rk3588s-orangepi-5.dtb`.
+This repository builds an open-source Android 17 AOSP TV image for the Orange
+Pi 5 v1.2. The standard image contains no proprietary Google apps and includes
+Flicky as its TV-friendly F-Droid store client. The legacy upstream source and
+target directories remain named `opi5_pro`, but generated images target the
+Orange Pi 5 and use `rk3588s-orangepi-5.dtb`.
 
 ## Feature highlights
 
@@ -43,7 +45,7 @@ The following have been exercised on an Orange Pi 5 v1.2 with 8 GB RAM:
 - Only the native display color mode is exposed. Broad HDR and wide-gamut
   tone-mapping support is not yet claimed, even when a connected display reports
   HDR capabilities.
-- The OSS product contains neither Google apps nor Widevine.
+- The standard OSS product contains no proprietary Google apps or Widevine.
 - Chromecast built-in receiver functionality is not included.
 - USB gadget ADB is intentionally not enabled because it conflicts with the
   shared upright USB-A host path; use Ethernet ADB.
@@ -80,8 +82,8 @@ handling seen before these fixes.
 
 ## Flicky
 
-[Flicky](https://github.com/mlm-games/flicky) is included in both OSS and
-customized images under the
+[Flicky](https://github.com/mlm-games/flicky) is an F-Droid store client made
+for Android TV. It is included in both OSS and customized images under the
 [GNU GPL v3.0 only](https://github.com/mrworf/opi5-aosptv-proprietary_vendor_opi/blob/android-17.0-opi5-tv/flicky/LICENSE).
 The build pins the maintainer-signed ARM64 APK from the
 [4.5.2 release](https://github.com/mlm-games/flicky/releases/tag/4.5.2), whose
