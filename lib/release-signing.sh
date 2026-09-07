@@ -19,6 +19,11 @@ opi5_resolve_signing_dir() {
 opi5_require_release_keys() {
   local root=$1 source=$2
   opi5_resolve_signing_dir "$root"
+  opi5_validate_release_keys "$source"
+}
+
+opi5_validate_release_keys() {
+  local source=${1:-}
   command -v openssl >/dev/null || { echo "Missing host tool: openssl" >&2; return 2; }
   local name suffix candidate stock cert_public key_public
   for name in releasekey platform shared media networkstack sdk_sandbox bluetooth nfc cts_uicc_2021; do
@@ -26,7 +31,7 @@ opi5_require_release_keys() {
       candidate="$OPI5_SIGNING_DIR/$name.$suffix"
       [[ -s $candidate ]] || { echo "Missing release signing input: $candidate" >&2; return 2; }
       stock="$source/build/make/target/product/security/${name/releasekey/testkey}.$suffix"
-      if [[ -f $stock ]] && cmp -s "$candidate" "$stock"; then
+      if [[ -n $source && -f $stock ]] && cmp -s "$candidate" "$stock"; then
         echo "Refusing AOSP development key for user build: $candidate" >&2
         return 2
       fi
@@ -52,6 +57,13 @@ opi5_require_release_keys() {
   openssl pkey -in "$OPI5_SIGNING_DIR/apex.pem" -noout >/dev/null 2>&1 || {
     echo "Invalid APEX payload key: $OPI5_SIGNING_DIR/apex.pem" >&2; return 2;
   }
+}
+
+opi5_ensure_release_keys() {
+  local root=$1 signing_root="$1/local/signing"
+  if [[ ! -f $signing_root/release.conf ]]; then
+    "$root/configure-release-signing"
+  fi
 }
 
 opi5_require_clean_release_sources() {

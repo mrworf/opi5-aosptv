@@ -111,7 +111,9 @@ cd opi5-aosptv
 
 `userdebug` is the default and is intended for board development. A `user`
 variant is also available for locally release-signed, non-debuggable,
-SELinux-enforcing images; see [Building](docs/BUILDING.md#build-variants).
+SELinux-enforcing images. Its first build automatically creates local signing
+keys that must be backed up and retained; see
+[Building](docs/BUILDING.md#build-variants).
 
 See [Building](docs/BUILDING.md) for prerequisites and outputs. To supply your
 own additional components, use the interface described in

@@ -10,6 +10,22 @@ SOURCE="$TEST_ROOT/source"
 KEY_DIR="$TEST_ROOT/keys"
 mkdir -p "$SOURCE/build/make/target/product/security" "$KEY_DIR"
 
+GENERATOR_ROOT="$TEST_ROOT/generator"
+mkdir -p "$GENERATOR_ROOT/lib"
+cp "$ROOT/configure-release-signing" "$GENERATOR_ROOT/"
+cp "$ROOT/lib/release-signing.sh" "$GENERATOR_ROOT/lib/"
+"$GENERATOR_ROOT/configure-release-signing" >/dev/null
+[[ -f $GENERATOR_ROOT/local/signing/release.conf ]]
+[[ -f $GENERATOR_ROOT/local/signing/keys/platform.pk8 ]]
+[[ -f $GENERATOR_ROOT/local/signing/keys/apex.pem ]]
+"$GENERATOR_ROOT/configure-release-signing" >/dev/null
+printf 'partial\n' > "$GENERATOR_ROOT/local/signing/keys/broken"
+rm "$GENERATOR_ROOT/local/signing/release.conf"
+if "$GENERATOR_ROOT/configure-release-signing" >/dev/null 2>&1; then
+  echo "Signing generator overwrote partial state" >&2
+  exit 1
+fi
+
 if opi5_resolve_signing_dir "$TEST_ROOT" 2>/dev/null; then
   echo "Missing signing configuration was accepted" >&2
   exit 1

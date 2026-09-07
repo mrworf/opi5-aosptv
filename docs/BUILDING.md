@@ -29,14 +29,16 @@ capture for development:
 
 The `user` variant is non-debuggable, does not start Ethernet ADB or persistent
 kernel logging, enables Android debugfs restrictions, and removes the board's
-permissive SELinux boot argument. It requires local release keys before any
-kernel or Android compilation begins:
+permissive SELinux boot argument. On the first `user` build, the controller
+generates an ignored local release-signing identity before compilation:
 
 ```bash
 ./build.sh --profile oss --variant user
 ```
 
-Configure the ignored signing inputs as described in
+Back up the generated `local/signing` directory securely and reuse it for all
+future releases. You can generate it ahead of time or customize its public
+certificate subject with `./configure-release-signing`; see
 [`local/README.md`](../local/README.md). The build creates target-files, signs
 source-built APK containers using the standard Android key mappings while
 preserving explicitly presigned external artifacts, replaces every APEX payload

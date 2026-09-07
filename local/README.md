@@ -17,27 +17,25 @@ Signing inputs are required for any `user` variant, including OSS.
 
 ## Local release signing
 
-Create a key directory only on a trusted build machine. From a bootstrapped
-Android source slot, use AOSP's `make_key` for the Android certificate pairs and
-OpenSSL for the APEX payload key. Choose and protect an appropriate certificate
-subject for your own build:
+Create the keys once on a trusted build machine:
 
 ```bash
-mkdir -p local/signing/keys
-for key in releasekey platform shared media networkstack sdk_sandbox \
-    bluetooth nfc cts_uicc_2021; do
-  sources/oss/development/tools/make_key "local/signing/keys/$key" \
-    '/C=US/O=Local Android Build/CN=Orange Pi 5/'
-done
-openssl genrsa -out local/signing/keys/apex.pem 4096
-chmod 0600 local/signing/keys/*.pk8 local/signing/keys/apex.pem
+./configure-release-signing
 ```
 
-Then create `local/signing/release.conf`:
+An organization may set the public certificate identity explicitly:
 
-```text
-key_dir=local/signing/keys
+```bash
+./configure-release-signing --subject '/O=Example Organization/CN=Orange Pi 5 Release/'
 ```
+
+The command creates unencrypted Android PKCS#8 keys, their X.509 certificates,
+the APEX payload key, and `local/signing/release.conf`. It is idempotent for a
+valid setup and refuses to overwrite partial or invalid signing state.
+
+The first `user` build also runs this setup automatically when signing has not
+been configured. Key generation happens before compilation and never replaces
+an existing or partial identity.
 
 The controller rejects missing, malformed, or stock AOSP development keys.
 Signing files and configuration are ignored by Git. Back them up securely:

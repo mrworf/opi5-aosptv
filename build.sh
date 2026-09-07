@@ -25,6 +25,7 @@ if [[ $OPI5_WIDEVINE == enabled ]]; then
   }
 fi
 if [[ $OPI5_VARIANT == user ]]; then
+  opi5_ensure_release_keys "$ROOT"
   opi5_require_release_keys "$ROOT" "$SOURCE"
   opi5_require_clean_release_sources "$ROOT" "$SOURCE"
 fi

@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+source "$ROOT/lib/release-signing.sh"
+
+SUBJECT=${OPI5_SIGNING_SUBJECT:-/O=Orange Pi 5 Community/CN=Orange Pi 5 Release/}
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --subject)
+      [[ $# -ge 2 && -n $2 ]] || { echo "--subject requires a value" >&2; exit 2; }
+      SUBJECT=$2
+      shift 2
+      ;;
+    --help|-h)
+      cat <<'EOF'
+Usage: ./configure-release-signing [--subject X509_SUBJECT]
+
+Creates the ignored, machine-local Android application and APEX release keys
+needed by user builds. Existing or partial signing state is never overwritten.
+EOF
+      exit 0
+      ;;
+    *) echo "Unknown option: $1" >&2; exit 2 ;;
+  esac
+done
+
+command -v openssl >/dev/null || { echo "Missing host tool: openssl" >&2; exit 2; }
+umask 077
+
+SIGNING_ROOT="$ROOT/local/signing"
+KEY_DIR="$SIGNING_ROOT/keys"
+CONFIG="$SIGNING_ROOT/release.conf"
+
+if [[ -f $CONFIG ]]; then
+  opi5_resolve_signing_dir "$ROOT"
+  opi5_validate_release_keys
+  echo "Release signing keys are already configured: $OPI5_SIGNING_DIR"
+  exit 0
+fi
+
+if [[ -e $KEY_DIR || -n $(find "$SIGNING_ROOT" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null) ]]; then
+  echo "Refusing to overwrite incomplete signing state under $SIGNING_ROOT" >&2
+  echo "Back it up or remove it deliberately, then rerun this command." >&2
+  exit 2
+fi
+
+mkdir -p "$SIGNING_ROOT" "$ROOT/.state/signing"
+STAGING=$(mktemp -d "$ROOT/.state/signing/keys.XXXXXX")
+trap 'rm -rf -- "$STAGING"' EXIT
+
+echo "Generating a new Orange Pi 5 release-signing identity."
+for name in releasekey platform shared media networkstack sdk_sandbox bluetooth nfc cts_uicc_2021; do
+  pem="$STAGING/$name.private.pem"
+  openssl req -new -x509 -sha256 -newkey rsa:2048 -nodes -days 10000 \
+    -subj "$SUBJECT" -keyout "$pem" -out "$STAGING/$name.x509.pem" \
+    >/dev/null 2>&1
+  openssl pkcs8 -topk8 -inform PEM -outform DER -nocrypt \
+    -in "$pem" -out "$STAGING/$name.pk8"
+  rm -f -- "$pem"
+done
+openssl genrsa -out "$STAGING/apex.pem" 4096 >/dev/null 2>&1
+
+OPI5_SIGNING_DIR=$STAGING
+opi5_validate_release_keys
+mv -- "$STAGING" "$KEY_DIR"
+trap - EXIT
+printf '%s\n' 'key_dir=local/signing/keys' > "$CONFIG"
+chmod 0600 "$KEY_DIR"/*.pk8 "$KEY_DIR/apex.pem" "$CONFIG"
+chmod 0644 "$KEY_DIR"/*.x509.pem
+
+echo "Release signing keys created in $KEY_DIR"
+echo "Back up local/signing securely. Losing these keys breaks update continuity."
