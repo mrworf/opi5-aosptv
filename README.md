@@ -44,6 +44,7 @@ The following have been exercised on an Orange Pi 5 v1.2 with 8 GB RAM:
   tone-mapping support is not yet claimed, even when a connected display reports
   HDR capabilities.
 - The OSS product contains neither Google apps nor Widevine.
+- Chromecast built-in receiver functionality is not included.
 - USB gadget ADB is intentionally not enabled because it conflicts with the
   shared upright USB-A host path; use Ethernet ADB.
 

@@ -35,6 +35,8 @@ case "$request" in
   *Flicky*) present=${MOCK_FLICKY_PRESENT:-1} ;;
   *YouTubeTV*) present=${MOCK_YOUTUBE_PRESENT:-1} ;;
   *GooglePhotos*) present=${MOCK_PHOTOS_PRESENT:-0} ;;
+  *AndroidMediaShell*) present=${MOCK_MEDIASHELL_PRESENT:-0} ;;
+  *Backdrop*) present=${MOCK_BACKDROP_PRESENT:-0} ;;
 esac
 if [[ $present == 1 ]]; then
   echo 'Inode: 42   Type: regular'
@@ -79,6 +81,14 @@ if MOCK_YOUTUBE_PRESENT=0 run_verifier custom disabled >/dev/null 2>&1; then
 fi
 if MOCK_PHOTOS_PRESENT=1 run_verifier custom disabled >/dev/null 2>&1; then
   echo "Custom image containing Google Photos was accepted" >&2
+  exit 1
+fi
+if MOCK_MEDIASHELL_PRESENT=1 run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Custom image containing the unprovisioned Cast receiver was accepted" >&2
+  exit 1
+fi
+if MOCK_BACKDROP_PRESENT=1 run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Custom image containing the Cast-dependent Backdrop dream was accepted" >&2
   exit 1
 fi
 MOCK_YOUTUBE_PRESENT=0 MOCK_PHOTOS_PRESENT=0 run_verifier oss disabled >/dev/null

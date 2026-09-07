@@ -55,6 +55,10 @@ else
   [[ -f "$SOURCE/vendor/gapps_tv/arm64/arm64-vendor.mk" ]] || exit 2
   require_image_path "$PRODUCT_OUT/system.img" \
     /product/app/YouTubeTV/YouTubeTV.apk "Google YouTube"
+  reject_image_path "$PRODUCT_OUT/system.img" \
+    /product/priv-app/AndroidMediaShell/AndroidMediaShell.apk "unprovisioned Cast receiver"
+  reject_image_path "$PRODUCT_OUT/system.img" \
+    /product/priv-app/Backdrop/Backdrop.apk "Cast-dependent Backdrop dream"
 fi
 if [[ $WIDEVINE == enabled ]]; then
   image_path_exists "$PRODUCT_OUT/vendor.img" \
