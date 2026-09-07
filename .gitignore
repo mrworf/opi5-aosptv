@@ -1,0 +1,12 @@
+/config/adb/adbkey.pub
+/local/*
+!/local/README.md
+/sources/
+/remotes/
+/releases/
+/backups/
+/.state/
+/evidence/
+/test-artifacts/
+/*-resolved-manifest.xml
+*.log

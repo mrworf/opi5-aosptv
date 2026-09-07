@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+SOURCE=
+
+if [[ ${1:-} == --from && $# -eq 2 ]]; then
+  SOURCE=$2
+else
+  echo "Usage: $0 --from /path/to/adbkey.pub" >&2
+  exit 2
+fi
+
+[[ -f "$SOURCE" ]] || { echo "ADB public key not found: $SOURCE" >&2; exit 2; }
+if grep -q -- 'PRIVATE KEY' "$SOURCE"; then
+  echo "Refusing private-key material: $SOURCE" >&2
+  exit 2
+fi
+
+token=$(awk 'NR == 1 { print $1 }' "$SOURCE")
+[[ -n "$token" ]] || { echo "ADB public key is empty" >&2; exit 2; }
+mkdir -p "$ROOT/.state/adb" "$ROOT/config/adb"
+decoded="$ROOT/.state/adb/decoded-key"
+if ! printf '%s' "$token" | base64 --decode >"$decoded" 2>/dev/null; then
+  echo "ADB public key is not valid base64" >&2
+  exit 2
+fi
+[[ $(stat -c %s "$decoded") -eq 524 ]] || {
+  echo "ADB public key has an invalid Android RSAPublicKey payload" >&2
+  exit 2
+}
+
+install -m 0644 "$SOURCE" "$ROOT/config/adb/adbkey.pub"
+git -C "$ROOT" check-ignore -q config/adb/adbkey.pub || {
+  echo "Configured key is not ignored by Git" >&2
+  exit 2
+}
+fingerprint=$(sha256sum "$ROOT/config/adb/adbkey.pub" | awk '{print $1}')
+echo "Configured Android ADB public key: sha256:$fingerprint"

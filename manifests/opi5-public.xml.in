@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote name="opi5-public" fetch="@PUBLIC_GIT_BASE@" />
+  <remote name="opi-upstream" fetch="https://github.com/dvab-sarma/" />
+
+  <remove-project name="platform/build" optional="true" />
+  <remove-project name="platform/build/soong" optional="true" />
+  <remove-project name="platform/build/release" optional="true" />
+  <remove-project name="device/google/atv" optional="true" />
+  <remove-project name="platform/external/drm_hwcomposer" optional="true" />
+  <remove-project name="platform/external/ffmpeg" optional="true" />
+  <remove-project name="platform/external/ffmpeg_codec2" optional="true" />
+  <remove-project name="platform/external/libudev-zero" optional="true" />
+  <remove-project name="platform/external/minigbm" optional="true" />
+  <remove-project name="platform/frameworks/av" optional="true" />
+  <remove-project name="platform/frameworks/base" optional="true" />
+  <remove-project name="platform/frameworks/native" optional="true" />
+  <remove-project name="platform/packages/apps/TvSettings" optional="true" />
+  <remove-project name="platform/packages/modules/Bluetooth" optional="true" />
+  <remove-project name="platform/packages/modules/Permission" optional="true" />
+  <remove-project name="platform/packages/modules/Wifi" optional="true" />
+  <remove-project name="platform/system/core" optional="true" />
+  <remove-project name="platform/system/memory/libmeminfo" optional="true" />
+  <remove-project name="platform/system/sepolicy" optional="true" />
+
+  <project path="build/make" name="android_build" remote="opi-upstream"
+           revision="f337e3a11d4bf6a45a3f6da36d2b8dff8bea717c">
+    <linkfile src="CleanSpec.mk" dest="build/CleanSpec.mk" />
+    <linkfile src="buildspec.mk.default" dest="build/buildspec.mk.default" />
+    <linkfile src="core" dest="build/core" />
+    <linkfile src="envsetup.sh" dest="build/envsetup.sh" />
+    <linkfile src="target" dest="build/target" />
+    <linkfile src="tools" dest="build/tools" />
+  </project>
+  <project path="build/soong" name="android_build_soong" remote="opi-upstream"
+           revision="dae75ffc8a76720453ff0c453f3e3fe31f92b9cc">
+    <linkfile src="root.bp" dest="Android.bp" />
+    <linkfile src="bootstrap.bash" dest="bootstrap.bash" />
+  </project>
+
+  <project path="build/release" name="opi5-aosptv-android_build_release" remote="opi5-public"
+           revision="242b7d7f48655a8eceef70cebdee9c2404878314" />
+  <project path="device/google/atv" name="opi5-aosptv-android_device_google_atv" remote="opi5-public"
+           revision="e17a87e295653412f5d736b48aec8621355c7581" />
+  <project path="device/opi/opi5_pro" name="opi5-aosptv-android_device_opi_opi5_pro" remote="opi5-public"
+           revision="8b1049b204945b5190348e14dccb7139ab7d4cce">
+    <linkfile src="mkimg_gpt.sh" dest="opi5-mkimg.sh" />
+  </project>
+  <project path="device/opi/opi5_pro-kernel" name="opi5-aosptv-android_device_opi_opi5_pro-kernel"
+           remote="opi5-public" revision="6a45e2c9e620732fd818ce1a3d707ea82b1e44b7" />
+  <project path="kernel/opi/rk3588" name="opi5-aosptv-android_kernel_rk_opi" remote="opi5-public"
+           revision="f05e0848a88a88728ad571ffa17785753e376188" />
+  <project path="vendor/opi" name="opi5-aosptv-proprietary_vendor_opi" remote="opi5-public"
+           revision="2719a18d899bc89ac920ac4ffc07b8fcf20c91b3" />
+
+  <project path="external/alsa-lib" name="android_external_alsa-lib" remote="opi-upstream"
+           revision="4835f356d14ea5ac3a4ae598fdbb66e61e512dc2" />
+  <project path="external/alsa-utils" name="android_external_alsa-utils" remote="opi-upstream"
+           revision="6a4bf9f6b944bc618e30f7da9ef8978dbd75d0bd" />
+  <project path="external/libudev-zero" name="android_external_libudev-zero" remote="opi-upstream"
+           revision="468aa61582d93aea68af8e8490f17120848dc536" />
+  <project path="external/mesa3d-panfrost" name="android_external_mesa3d_panfrost" remote="opi-upstream"
+           revision="65fa67abf77305c171bc64bbff27c0d846768ecf" />
+  <project path="hardware/rockchip/librga" name="opi5-aosptv-android_hardware_rockchip_librga"
+           remote="opi5-public" revision="9e1d19c5461c94ed5c58085d5d05346d41d3b0a6" />
+
+  <project path="external/drm_hwcomposer" name="opi5-aosptv-android_external_drm_hwcomposer" remote="opi5-public"
+           revision="9932ff80a3f148fc1be768b211ac356a35845336" />
+  <project path="external/ffmpeg" name="opi5-aosptv-android_external_ffmpeg" remote="opi5-public"
+           revision="ba62c030c4940bc5613d6d21b4ce8c74e3ce1d81" />
+  <project path="external/ffmpeg_codec2" name="opi5-aosptv-android_external_ffmpeg_codec2" remote="opi5-public"
+           revision="cea46058fb04af80d760757e77ce263e4e831f7e" />
+  <project path="external/minigbm" name="opi5-aosptv-android_external_minigbm" remote="opi5-public"
+           revision="a0f84ae927184c159f7d435af7721f1c6a38239a" />
+  <project path="frameworks/av" name="opi5-aosptv-android_frameworks_av" remote="opi5-public"
+           revision="7d0fb70e484cf34aeee5c105379fe0caffc46aba" />
+  <project path="frameworks/base" name="opi5-aosptv-android_frameworks_base" remote="opi5-public"
+           revision="398cba104e2b992d818fa572c964ac30ad5c14f0" />
+  <project path="frameworks/native" name="opi5-aosptv-android_frameworks_native" remote="opi5-public"
+           revision="2cc2eb978fa01e062b7a9d50883834e80b82c754" />
+  <project path="packages/apps/TvSettings" name="opi5-aosptv-android_packages_apps_TvSettings" remote="opi5-public"
+           revision="dcb6e663058d1ce6f976c43a3910546e778366a1" />
+  <project path="packages/modules/Bluetooth" name="opi5-aosptv-android_packages_modules_Bluetooth" remote="opi5-public"
+           revision="c41a42ea1c471cac1c2d181fabdb9327a6d027c4" />
+  <project path="packages/modules/Permission" name="opi5-aosptv-android_packages_modules_Permission" remote="opi5-public"
+           revision="6d7789b20d417931b7401407d35111cd7056c864" />
+  <project path="packages/modules/Wifi" name="opi5-aosptv-android_packages_modules_Wifi" remote="opi5-public"
+           revision="d2e38259207f3fb8e96d36cde2432a99a5077c0f" />
+  <project path="system/core" name="opi5-aosptv-android_system_core" remote="opi5-public"
+           revision="4c3f6004edffa12ddde2b35ef1ea363521ec54c1" />
+  <project path="system/memory/libmeminfo" name="opi5-aosptv-android_system_memory_libmeminfo" remote="opi5-public"
+           revision="d6f642ac53c6840b81a597db60088175a3d63586" />
+  <project path="system/sepolicy" name="opi5-aosptv-android_system_sepolicy" remote="opi5-public"
+           revision="2c1560b614cff1193aea67d7955a0f67fe2965dc" />
+
+  <remove-project name="device/amlogic/yukawa" optional="true" />
+  <remove-project name="device/amlogic/yukawa-kernel" optional="true" />
+  <remove-project name="device/google/common/etm" optional="true" />
+  <remove-project name="device/google/contexthub" optional="true" />
+  <remove-project name="device/google/trout" optional="true" />
+  <remove-project name="device/linaro/dragonboard" optional="true" />
+  <remove-project name="device/linaro/hikey" optional="true" />
+  <remove-project name="platform/hardware/qcom/wlan" optional="true" />
+  <remove-project name="platform/prebuilts/clang/host/darwin-x86" optional="true" />
+  <remove-project name="platform/prebuilts/go/darwin-x86" optional="true" />
+</manifest>

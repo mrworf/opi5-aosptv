@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote name="custom-source" fetch="REPLACE_WITH_SOURCE_BASE" />
+  <project path="vendor/gapps_tv" name="REPLACE_WITH_GAPPS_PROJECT" remote="custom-source"
+           revision="REPLACE_WITH_EXACT_COMMIT" />
+</manifest>
