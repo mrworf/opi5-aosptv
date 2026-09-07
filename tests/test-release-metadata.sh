@@ -21,13 +21,16 @@ printf image > "$PRODUCT_OUT/release.img"
 sha256sum "$PRODUCT_OUT/release.img" > "$PRODUCT_OUT/release.img.sha256"
 
 OPI5_KERNEL_PACKAGE_DIR="$PACKAGE_DIR" "$ROOT/tools/write-release-metadata.sh" \
-  --profile custom --widevine enabled --source "$SOURCE" \
+  --profile custom --widevine enabled --variant user --build-id 0123456789abcdef --source "$SOURCE" \
   --image "$PRODUCT_OUT/release.img" --output-dir "$OUTPUT" >/dev/null
 
 jq -e '
-  .schema == "opi5-release-v2" and
+  .schema == "opi5-release-v3" and
   .profile == "custom" and
   .widevine == "enabled" and
+  .variant == "user" and
+  .build_id == "0123456789abcdef" and
+  .signing == "release" and
   .product == "Orange Pi 5" and
   .android_product == "opi5_pro" and
   .dtb == "rk3588s-orangepi-5.dtb" and

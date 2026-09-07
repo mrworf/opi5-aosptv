@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source "$ROOT/lib/profile.sh"
+source "$ROOT/lib/release-signing.sh"
 opi5_resolve_profile "$ROOT" "$@"
 opi5_require_adb_key "$ROOT"
 
@@ -22,6 +23,10 @@ if [[ $OPI5_WIDEVINE == enabled ]]; then
   [[ -f "$SOURCE/vendor/opi/widevine_local/widevine-vendor.mk" ]] || {
     echo "Widevine enabled but its bundle is unavailable" >&2; exit 2;
   }
+fi
+if [[ $OPI5_VARIANT == user ]]; then
+  opi5_require_release_keys "$ROOT" "$SOURCE"
+  opi5_require_clean_release_sources "$ROOT" "$SOURCE"
 fi
 
 export TMPDIR="$SOURCE/out/opi5/tmp"
@@ -43,6 +48,7 @@ install -m 0644 "$KERNEL_OUT/arch/arm64/boot/dts/rockchip/rk3588s-orangepi-5.dtb
 
 PROFILE_MK="$SOURCE/out/opi5/opi5-profile.mk"
 export OPI5_BUILD_PROFILE="$OPI5_PROFILE"
+export OPI5_BUILD_VARIANT="$OPI5_VARIANT"
 if [[ $OPI5_WIDEVINE == enabled ]]; then
   export OPI5_ENABLE_WIDEVINE=true
 else
@@ -51,28 +57,42 @@ fi
 {
   printf 'OPI5_BUILD_PROFILE := %s\n' "$OPI5_BUILD_PROFILE"
   printf 'OPI5_ENABLE_WIDEVINE := %s\n' "$OPI5_ENABLE_WIDEVINE"
+  printf 'OPI5_BUILD_VARIANT := %s\n' "$OPI5_BUILD_VARIANT"
 } > "$PROFILE_MK"
 export OPI5_PRODUCT_PROFILE_MK="$PROFILE_MK"
 export OPI5_ADB_KEYS=".opi5-config/adbkey.pub"
 export OPI5_KERNEL_BUILD_OUT="$KERNEL_OUT"
 export OPI5_KERNEL_PACKAGE_DIR="$KERNEL_PACKAGE"
+OPI5_SOURCE_ID=$("$ROOT/tools/source-build-id.sh" "$SOURCE" "$OPI5_PROFILE" "$OPI5_WIDEVINE" "$OPI5_VARIANT")
+export BUILD_NUMBER="OPI5.$OPI5_SOURCE_ID"
+export BUILD_USERNAME=opi5
+export BUILD_HOSTNAME=builder
 
 cd "$SOURCE"
 source build/envsetup.sh
 if [[ $OPI5_PROFILE == oss ]]; then
-  lunch aosp_opi5_tv_oss-cp2a-userdebug
+  lunch "aosp_opi5_tv_oss-cp2a-$OPI5_VARIANT"
 else
-  lunch aosp_opi5_tv_custom-cp2a-userdebug
+  lunch "aosp_opi5_tv_custom-cp2a-$OPI5_VARIANT"
 fi
-m -j26 bootimage systemimage vendorimage
+if [[ $OPI5_VARIANT == user ]]; then
+  m -j26 target-files-package sign_target_files_apks img_from_target_files
+  "$ROOT/tools/sign-release-images.sh" \
+    --source "$SOURCE" --product-out "$SOURCE/out/target/product/opi5_pro" \
+    --key-dir "$OPI5_SIGNING_DIR" \
+    --output-dir "$SOURCE/out/opi5/signed/$OPI5_SOURCE_ID"
+else
+  m -j26 bootimage systemimage vendorimage
+fi
 RELEASE_STAMP=$(date -u +%Y%m%dT%H%M%SZ)
-IMAGE_PATH="$SOURCE/out/target/product/opi5_pro/OrangePi_5-Android17-TV-${OPI5_PROFILE}-widevine-${OPI5_ENABLE_WIDEVINE}-${RELEASE_STAMP}.img"
+IMAGE_PATH="$SOURCE/out/target/product/opi5_pro/OrangePi_5-Android17-TV-${OPI5_PROFILE}-${OPI5_VARIANT}-widevine-${OPI5_ENABLE_WIDEVINE}-${RELEASE_STAMP}.img"
 OPI5_IMAGE_PATH="$IMAGE_PATH" \
   "$ROOT/tools/assemble-image.sh" --product-out "$SOURCE/out/target/product/opi5_pro"
 "$ROOT/tools/verify-release.sh" \
-  --profile "$OPI5_PROFILE" --widevine "$OPI5_WIDEVINE" \
+  --profile "$OPI5_PROFILE" --widevine "$OPI5_WIDEVINE" --variant "$OPI5_VARIANT" \
   --source "$SOURCE" --kernel-out "$KERNEL_OUT"
 "$ROOT/tools/write-release-metadata.sh" \
-  --profile "$OPI5_PROFILE" --widevine "$OPI5_WIDEVINE" \
+  --profile "$OPI5_PROFILE" --widevine "$OPI5_WIDEVINE" --variant "$OPI5_VARIANT" \
+  --build-id "$OPI5_SOURCE_ID" \
   --source "$SOURCE" --image "$IMAGE_PATH" \
-  --output-dir "$ROOT/releases/${OPI5_PROFILE}-widevine-${OPI5_ENABLE_WIDEVINE}-${RELEASE_STAMP}"
+  --output-dir "$ROOT/releases/${OPI5_PROFILE}-${OPI5_VARIANT}-widevine-${OPI5_ENABLE_WIDEVINE}-${RELEASE_STAMP}"

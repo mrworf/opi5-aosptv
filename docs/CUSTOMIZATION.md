@@ -42,6 +42,7 @@ Optional defaults can be stored as plain data in
 ```text
 default_profile=custom
 widevine=enabled
+default_variant=userdebug
 ```
 
 Command-line profile options override these defaults. User-supplied manifests,

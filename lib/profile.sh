@@ -5,6 +5,7 @@ opi5_resolve_profile() {
   shift
   OPI5_PROFILE=
   OPI5_WIDEVINE=
+  OPI5_VARIANT=
   local profile_explicit=false widevine_explicit=false
   local config="$root/local/customization/profile.conf"
 
@@ -14,22 +15,28 @@ opi5_resolve_profile() {
       case "$key" in
         default_profile) [[ $value == oss || $value == custom ]] && OPI5_PROFILE=$value ;;
         widevine) [[ $value == enabled || $value == disabled ]] && OPI5_WIDEVINE=$value ;;
+        default_variant) [[ $value == userdebug || $value == user ]] && OPI5_VARIANT=$value ;;
       esac
     done < "$config"
   fi
 
   [[ -n $OPI5_PROFILE ]] || OPI5_PROFILE=oss
   [[ -n $OPI5_WIDEVINE ]] || OPI5_WIDEVINE=disabled
+  [[ -n $OPI5_VARIANT ]] || OPI5_VARIANT=userdebug
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --profile) OPI5_PROFILE=${2:-}; profile_explicit=true; shift 2 ;;
       --with-widevine) OPI5_WIDEVINE=enabled; widevine_explicit=true; shift ;;
       --without-widevine) OPI5_WIDEVINE=disabled; widevine_explicit=true; shift ;;
+      --variant) OPI5_VARIANT=${2:-}; shift 2 ;;
       *) echo "Unknown option: $1" >&2; return 2 ;;
     esac
   done
   [[ $OPI5_PROFILE == oss || $OPI5_PROFILE == custom ]] || {
     echo "Profile must be oss or custom" >&2; return 2;
+  }
+  [[ $OPI5_VARIANT == userdebug || $OPI5_VARIANT == user ]] || {
+    echo "Variant must be userdebug or user" >&2; return 2;
   }
   if [[ $profile_explicit == true && $OPI5_PROFILE == oss && $widevine_explicit == false ]]; then
     OPI5_WIDEVINE=disabled
@@ -38,7 +45,7 @@ opi5_resolve_profile() {
     echo "OSS profile cannot enable Widevine" >&2
     return 2
   fi
-  export OPI5_PROFILE OPI5_WIDEVINE
+  export OPI5_PROFILE OPI5_WIDEVINE OPI5_VARIANT
 }
 
 opi5_source_slot() {

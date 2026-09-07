@@ -17,6 +17,39 @@ rate limits and can be overridden with `OPI5_SYNC_JOBS`.
 ./build.sh --profile oss
 ```
 
+## Build variants
+
+Content profiles and Android build variants are independent. `userdebug` is
+the default and keeps authenticated Ethernet ADB plus persistent kernel-log
+capture for development:
+
+```bash
+./build.sh --profile oss --variant userdebug
+```
+
+The `user` variant is non-debuggable, does not start Ethernet ADB or persistent
+kernel logging, enables Android debugfs restrictions, and removes the board's
+permissive SELinux boot argument. It requires local release keys before any
+kernel or Android compilation begins:
+
+```bash
+./build.sh --profile oss --variant user
+```
+
+Configure the ignored signing inputs as described in
+[`local/README.md`](../local/README.md). The build creates target-files, signs
+source-built APK containers using the standard Android key mappings while
+preserving explicitly presigned external artifacts, replaces every APEX payload
+key with the configured APEX release key, regenerates partition images, and
+only then assembles the Orange Pi disk image. This is application and APEX
+release signing; this board does not currently implement AVB or rollback
+protection.
+
+Every build uses a deterministic `OPI5.<hash>` build number derived from the
+selected profile, variant, and checked-out project revisions. It also uses the
+neutral builder identity `opi5@builder`, so release properties do not disclose
+the workstation account or hostname.
+
 The build validates the ignored controller-repository copy and stages only that
 public key under the selected Android source tree. Soong requires source inputs
 to reside below the source root. The staged `.opi5-config/adbkey.pub` is local
@@ -42,6 +75,8 @@ Run the fast controller-level checks before a long build:
 ```bash
 bash tests/test-profiles.sh
 bash tests/test-adb-key.sh
+bash tests/test-build-identity.sh
+bash tests/test-release-signing.sh
 bash tests/test-release-verifier.sh
 bash tests/test-release-metadata.sh
 bash tests/test-flash-command.sh
@@ -58,5 +93,7 @@ YouTube is rejected.
 Each successful build also creates an ignored record under `releases/` with a
 `release.json` file and an exact-revision `source-manifest.xml`. The record
 identifies the selected profile, Orange Pi 5 DTB, and SHA-256 hashes for the
-full-disk, boot, system, and vendor images. Keep it with any image you retain;
+full-disk, boot, system, and vendor images. It also records the variant,
+source-derived build ID, and whether development or release signing was used.
+Keep it with any image you retain;
 it intentionally is not committed to the controller repository.

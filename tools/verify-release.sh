@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROFILE= WIDEVINE= SOURCE= KERNEL_OUT=
+PROFILE= WIDEVINE= VARIANT= SOURCE= KERNEL_OUT=
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --profile) PROFILE=$2; shift 2 ;;
     --widevine) WIDEVINE=$2; shift 2 ;;
+    --variant) VARIANT=$2; shift 2 ;;
     --source) SOURCE=$2; shift 2 ;;
     --kernel-out) KERNEL_OUT=$2; shift 2 ;;
     *) echo "Unknown option: $1" >&2; exit 2 ;;
   esac
 done
+[[ $VARIANT == userdebug || $VARIANT == user ]] || { echo "Invalid build variant" >&2; exit 2; }
 PRODUCT_OUT="$SOURCE/out/target/product/opi5_pro"
 image_path_exists() {
   local image=$1 path=$2 output
@@ -37,6 +39,24 @@ reject_image_path() {
 for image in boot.img system.img vendor.img; do
   [[ -f "$PRODUCT_OUT/$image" ]] || { echo "Missing $image" >&2; exit 2; }
 done
+if [[ $VARIANT == user ]]; then
+  if strings "$PRODUCT_OUT/boot.img" | grep -Fq 'androidboot.selinux=permissive'; then
+    echo "User boot image requests permissive SELinux" >&2
+    exit 2
+  fi
+  reject_image_path "$PRODUCT_OUT/system.img" \
+    /product/etc/security/adb_keys "ADB authorization keys in user build"
+  reject_image_path "$PRODUCT_OUT/system.img" \
+    /system/bin/logcatd "persistent log daemon in user build"
+else
+  strings "$PRODUCT_OUT/boot.img" | grep -Fq 'androidboot.selinux=permissive' || {
+    echo "Userdebug boot image unexpectedly lacks permissive SELinux" >&2; exit 2;
+  }
+  require_image_path "$PRODUCT_OUT/system.img" \
+    /product/etc/security/adb_keys "userdebug ADB authorization keys"
+  require_image_path "$PRODUCT_OUT/system.img" \
+    /system/bin/logcatd "userdebug persistent log daemon"
+fi
 cmp "$KERNEL_OUT/arch/arm64/boot/Image" "$OPI5_KERNEL_PACKAGE_DIR/Image"
 cmp "$KERNEL_OUT/arch/arm64/boot/dts/rockchip/rk3588s-orangepi-5.dtb" \
   "$OPI5_KERNEL_PACKAGE_DIR/rk3588s-orangepi-5.dtb"

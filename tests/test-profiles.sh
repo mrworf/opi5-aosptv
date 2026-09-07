@@ -8,13 +8,14 @@ TEST_ROOT=$(mktemp -d "$ROOT/.state/profile-test.XXXXXX")
 trap 'rm -rf -- "$TEST_ROOT"' EXIT
 mkdir -p "$TEST_ROOT/local/customization"
 printf '%s\n' 'default_profile=custom' 'widevine=enabled' \
+  'default_variant=user' \
   > "$TEST_ROOT/local/customization/profile.conf"
 
 opi5_resolve_profile "$TEST_ROOT"
-[[ $OPI5_PROFILE == custom && $OPI5_WIDEVINE == enabled ]]
+[[ $OPI5_PROFILE == custom && $OPI5_WIDEVINE == enabled && $OPI5_VARIANT == user ]]
 
 opi5_resolve_profile "$ROOT" --profile oss
-[[ $OPI5_PROFILE == oss && $OPI5_WIDEVINE == disabled ]]
+[[ $OPI5_PROFILE == oss && $OPI5_WIDEVINE == disabled && $OPI5_VARIANT == userdebug ]]
 [[ $(opi5_source_slot) == oss ]]
 if opi5_resolve_profile "$ROOT" --profile oss --with-widevine 2>/dev/null; then
   echo "OSS incorrectly accepted Widevine" >&2; exit 1
@@ -25,4 +26,9 @@ opi5_resolve_profile "$ROOT" --profile custom --without-widevine
 opi5_resolve_profile "$ROOT" --profile custom --with-widevine
 [[ $OPI5_PROFILE == custom && $OPI5_WIDEVINE == enabled ]]
 [[ $(opi5_source_slot) == custom-widevine ]]
+opi5_resolve_profile "$ROOT" --profile oss --variant user
+[[ $OPI5_VARIANT == user ]]
+if opi5_resolve_profile "$ROOT" --variant eng 2>/dev/null; then
+  echo "Invalid variant was accepted" >&2; exit 1
+fi
 echo "profile tests passed"

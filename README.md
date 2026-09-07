@@ -106,8 +106,12 @@ git clone https://github.com/mrworf/opi5-aosptv.git
 cd opi5-aosptv
 ./configure-adb-key --from "$HOME/.android/adbkey.pub"
 ./bootstrap.sh --profile oss
-./build.sh --profile oss
+./build.sh --profile oss --variant userdebug
 ```
+
+`userdebug` is the default and is intended for board development. A `user`
+variant is also available for locally release-signed, non-debuggable,
+SELinux-enforcing images; see [Building](docs/BUILDING.md#build-variants).
 
 See [Building](docs/BUILDING.md) for prerequisites and outputs. To supply your
 own additional components, use the interface described in

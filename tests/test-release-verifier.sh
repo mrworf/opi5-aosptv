@@ -37,6 +37,8 @@ case "$request" in
   *GooglePhotos*) present=${MOCK_PHOTOS_PRESENT:-0} ;;
   *AndroidMediaShell*) present=${MOCK_MEDIASHELL_PRESENT:-0} ;;
   *Backdrop*) present=${MOCK_BACKDROP_PRESENT:-0} ;;
+  *adb_keys*) present=${MOCK_ADB_KEYS_PRESENT:-0} ;;
+  *logcatd*) present=${MOCK_LOGCATD_PRESENT:-0} ;;
 esac
 if [[ $present == 1 ]]; then
   echo 'Inode: 42   Type: regular'
@@ -56,12 +58,32 @@ chmod +x "$SOURCE/.repo/repo/repo"
 cp "$SOURCE/.repo/repo/repo" "$OSS_SOURCE/.repo/repo/repo"
 
 run_verifier() {
-  local profile=$1 widevine=$2 source=$SOURCE
+  local profile=$1 widevine=$2 variant=${3:-user} source=$SOURCE
   [[ $profile != oss ]] || source=$OSS_SOURCE
   env PATH="$MOCK_BIN:$PATH" OPI5_KERNEL_PACKAGE_DIR="$PACKAGE_DIR" \
-    "$ROOT/tools/verify-release.sh" --profile "$profile" --widevine "$widevine" \
+    "$ROOT/tools/verify-release.sh" --profile "$profile" --widevine "$widevine" --variant "$variant" \
     --source "$source" --kernel-out "$KERNEL_OUT"
 }
+
+# Hardened builds must not request permissive SELinux, while development builds
+# retain the board's explicit diagnostic mode.
+printf 'androidboot.selinux=permissive\n' > "$PRODUCT_OUT/boot.img"
+if run_verifier custom disabled user >/dev/null 2>&1; then
+  echo "Permissive user image was accepted" >&2
+  exit 1
+fi
+MOCK_ADB_KEYS_PRESENT=1 MOCK_LOGCATD_PRESENT=1 \
+  run_verifier custom disabled userdebug >/dev/null
+: > "$PRODUCT_OUT/boot.img"
+
+if MOCK_ADB_KEYS_PRESENT=1 run_verifier custom disabled user >/dev/null 2>&1; then
+  echo "User image containing ADB authorization keys was accepted" >&2
+  exit 1
+fi
+if MOCK_LOGCATD_PRESENT=1 run_verifier custom disabled user >/dev/null 2>&1; then
+  echo "User image containing persistent logcatd was accepted" >&2
+  exit 1
+fi
 
 # debugfs returns success even for a missing path; absence must be judged by output.
 MOCK_WIDEVINE_PRESENT=0 run_verifier custom disabled >/dev/null

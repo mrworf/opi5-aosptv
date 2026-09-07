@@ -10,6 +10,10 @@
   `/tmp` for large or compiler-generated data.
 - OSS builds contain neither GApps nor Widevine. Custom builds require
   user-supplied GApps; Widevine L3 is required only when explicitly enabled.
+- Flicky is an F-Droid store client designed for Android TV, not a media
+  player. Keep that role accurate in product and release documentation.
+- Derive user-visible device defaults from the canonical product model. Do not
+  add tests whose only purpose is to lock the current display-name string.
 - Keep user-specific customization manifests and defaults below the ignored
   `local/customization` directory. Public files must not assume how or where
   those inputs are hosted.

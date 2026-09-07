@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROFILE= WIDEVINE= SOURCE= IMAGE= OUTPUT_DIR=
+PROFILE= WIDEVINE= VARIANT= BUILD_ID= SOURCE= IMAGE= OUTPUT_DIR=
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --profile) PROFILE=${2:-}; shift 2 ;;
     --widevine) WIDEVINE=${2:-}; shift 2 ;;
+    --variant) VARIANT=${2:-}; shift 2 ;;
+    --build-id) BUILD_ID=${2:-}; shift 2 ;;
     --source) SOURCE=${2:-}; shift 2 ;;
     --image) IMAGE=${2:-}; shift 2 ;;
     --output-dir) OUTPUT_DIR=${2:-}; shift 2 ;;
@@ -13,7 +15,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-for value in PROFILE WIDEVINE SOURCE IMAGE OUTPUT_DIR; do
+for value in PROFILE WIDEVINE VARIANT BUILD_ID SOURCE IMAGE OUTPUT_DIR; do
   [[ -n ${!value} ]] || { echo "Missing required release metadata option" >&2; exit 2; }
 done
 for tool in awk basename jq realpath sha256sum stat; do
@@ -48,10 +50,13 @@ path_of() {
 IMAGE_NAME=$(basename "$IMAGE")
 
 jq -n \
-  --arg schema "opi5-release-v2" \
+  --arg schema "opi5-release-v3" \
   --arg created_utc "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
   --arg profile "$PROFILE" \
   --arg widevine "$WIDEVINE" \
+  --arg variant "$VARIANT" \
+  --arg build_id "$BUILD_ID" \
+  --arg signing "$(if [[ $VARIANT == user ]]; then printf release; else printf development; fi)" \
   --arg product "Orange Pi 5" \
   --arg android_product "opi5_pro" \
   --arg dtb "rk3588s-orangepi-5.dtb" \
@@ -77,6 +82,9 @@ jq -n \
     created_utc: $created_utc,
     profile: $profile,
     widevine: $widevine,
+    variant: $variant,
+    build_id: $build_id,
+    signing: $signing,
     product: $product,
     android_product: $android_product,
     dtb: $dtb,
