@@ -58,4 +58,32 @@ if opi5_require_release_keys "$TEST_ROOT" "$SOURCE" 2>/dev/null; then
   exit 1
 fi
 
+FAKE_SOURCE="$TEST_ROOT/sign-source"
+PRODUCT_OUT="$TEST_ROOT/product-out"
+SIGNED_OUT="$TEST_ROOT/signed-out"
+mkdir -p "$FAKE_SOURCE/out/host/linux-x86/bin" \
+  "$PRODUCT_OUT/obj/PACKAGING/target_files_intermediates"
+touch "$PRODUCT_OUT/obj/PACKAGING/target_files_intermediates/aosp_opi5_tv_oss-target_files.zip"
+cat > "$FAKE_SOURCE/out/host/linux-x86/bin/sign_target_files_apks" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+cp "${@: -2:1}" "${@: -1}"
+EOF
+cat > "$FAKE_SOURCE/out/host/linux-x86/bin/img_from_target_files" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+stage="$2.files"
+mkdir -p "$stage"
+printf 'boot\n' > "$stage/boot.img"
+printf 'system\n' > "$stage/system.img"
+printf 'vendor\n' > "$stage/vendor.img"
+(cd "$stage" && zip -q "$2" boot.img system.img vendor.img)
+EOF
+chmod +x "$FAKE_SOURCE/out/host/linux-x86/bin/sign_target_files_apks" \
+  "$FAKE_SOURCE/out/host/linux-x86/bin/img_from_target_files"
+"$ROOT/tools/sign-release-images.sh" \
+  --source "$FAKE_SOURCE" --product-out "$PRODUCT_OUT" \
+  --key-dir "$KEY_DIR" --output-dir "$SIGNED_OUT" >/dev/null
+[[ -s $PRODUCT_OUT/boot.img && -s $PRODUCT_OUT/system.img && -s $PRODUCT_OUT/vendor.img ]]
+
 echo "release signing tests passed"

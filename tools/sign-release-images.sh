@@ -25,7 +25,8 @@ IMAGE_BUILDER="$SOURCE/out/host/linux-x86/bin/img_from_target_files"
   exit 2
 }
 TARGET_DIR="$PRODUCT_OUT/obj/PACKAGING/target_files_intermediates"
-mapfile -t candidates < <(find "$TARGET_DIR" -maxdepth 1 -type f -name '*-target_files-*.zip' -print | sort)
+mapfile -t candidates < <(find "$TARGET_DIR" -maxdepth 1 -type f \
+  \( -name '*-target_files.zip' -o -name '*-target_files-*.zip' \) -print | sort)
 (( ${#candidates[@]} == 1 )) || {
   echo "Expected exactly one target-files archive under $TARGET_DIR; found ${#candidates[@]}" >&2
   exit 2
