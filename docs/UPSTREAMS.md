@@ -8,6 +8,7 @@ upstream recorded here.
 
 | Component suffix | Publication kind | Upstream |
 | --- | --- | --- |
+| `android_build` | GitHub fork | `https://github.com/dvab-sarma/android_build` |
 | `android_build_release` | standalone mirror | `https://android.googlesource.com/platform/build/release` |
 | `android_device_google_atv` | standalone mirror | `https://android.googlesource.com/device/google/atv` |
 | `android_device_opi_opi5_pro` | GitHub fork | `https://github.com/dvab-sarma/android_device_opi_opi5_pro` |

@@ -23,8 +23,8 @@
   <remove-project name="platform/system/memory/libmeminfo" optional="true" />
   <remove-project name="platform/system/sepolicy" optional="true" />
 
-  <project path="build/make" name="android_build" remote="opi-upstream"
-           revision="f337e3a11d4bf6a45a3f6da36d2b8dff8bea717c">
+  <project path="build/make" name="opi5-aosptv-android_build" remote="opi5-public"
+           revision="7a6fb209a7119c6ba6b09da9f202249fe9f9be65">
     <linkfile src="CleanSpec.mk" dest="build/CleanSpec.mk" />
     <linkfile src="buildspec.mk.default" dest="build/buildspec.mk.default" />
     <linkfile src="core" dest="build/core" />
