@@ -96,7 +96,7 @@ LOGICAL_SECTOR=$(blockdev --getss "$TARGET")
 # Capacity failure must precede confirmation, hashing, unmounting, and writes.
 if [[ $MODE == flash ]]; then
   [[ -n $RELEASE_JSON && -f $RELEASE_JSON ]] || die "Flash mode requires --release-json PATH"
-  jq -e '.schema == "opi5-release-v2"' "$RELEASE_JSON" >/dev/null || die "Flash requires opi5-release-v2 metadata"
+  jq -e '.schema == "opi5-release-v3"' "$RELEASE_JSON" >/dev/null || die "Flash requires opi5-release-v3 metadata"
   MINIMUM_CAPACITY=$(jq -er '.artifacts.disk_image.size' "$RELEASE_JSON") || die "Release metadata lacks disk image size"
   (( CAPACITY >= MINIMUM_CAPACITY )) || die "Target is too small: $CAPACITY bytes; release requires $MINIMUM_CAPACITY bytes"
 fi

@@ -49,6 +49,13 @@ exit 0
 EOF
 chmod +x "$MOCK_BIN/debugfs"
 
+cat > "$MOCK_BIN/mtype" <<'EOF'
+#!/usr/bin/env bash
+[[ ${1:-} == -i && -f ${2:-} ]] || exit 1
+cat "$2"
+EOF
+chmod +x "$MOCK_BIN/mtype"
+
 cat > "$SOURCE/.repo/repo/repo" <<'EOF'
 #!/usr/bin/env bash
 [[ ${MOCK_REPO_FAIL:-0} != 1 ]] || exit 1

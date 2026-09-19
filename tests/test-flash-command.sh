@@ -43,6 +43,7 @@ output=$("$ROOT/tools/print-flash-command.sh" --machine "$MACHINE" --release-jso
 [[ $output == *'--target /dev/sdc '* ]]
 
 grep -q 'blockdev --getsize64' "$ROOT/tools/flash-partitions.sh"
+grep -q 'Flash requires opi5-release-v3 metadata' "$ROOT/tools/flash-partitions.sh"
 grep -q 'valid metadata and userdata are preserved' "$ROOT/tools/flash-partitions.sh"
 grep -q 'sha256sum --check --strict' "$ROOT/tools/flash-partitions.sh"
 grep -q 'confirm CLEAR-DATA' "$ROOT/tools/flash-partitions.sh"

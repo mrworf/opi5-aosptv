@@ -20,6 +20,11 @@ image_path_exists() {
   grep -q '^Inode:' <<<"$output"
 }
 
+boot_script_contains() {
+  local pattern=$1
+  mtype -i "$PRODUCT_OUT/boot.img" ::boot.scr 2>/dev/null | grep -aFq "$pattern"
+}
+
 require_image_path() {
   local image=$1 path=$2 description=$3
   image_path_exists "$image" "$path" || {
@@ -40,7 +45,7 @@ for image in boot.img system.img vendor.img; do
   [[ -f "$PRODUCT_OUT/$image" ]] || { echo "Missing $image" >&2; exit 2; }
 done
 if [[ $VARIANT == user ]]; then
-  if strings "$PRODUCT_OUT/boot.img" | grep -Fq 'androidboot.selinux=permissive'; then
+  if boot_script_contains 'androidboot.selinux=permissive'; then
     echo "User boot image requests permissive SELinux" >&2
     exit 2
   fi
@@ -49,7 +54,7 @@ if [[ $VARIANT == user ]]; then
   reject_image_path "$PRODUCT_OUT/system.img" \
     /system/bin/logcatd "persistent log daemon in user build"
 else
-  strings "$PRODUCT_OUT/boot.img" | grep -Fq 'androidboot.selinux=permissive' || {
+  boot_script_contains 'androidboot.selinux=permissive' || {
     echo "Userdebug boot image unexpectedly lacks permissive SELinux" >&2; exit 2;
   }
   require_image_path "$PRODUCT_OUT/system.img" \
