@@ -57,8 +57,8 @@
            revision="4835f356d14ea5ac3a4ae598fdbb66e61e512dc2" />
   <project path="external/alsa-utils" name="android_external_alsa-utils" remote="opi-upstream"
            revision="6a4bf9f6b944bc618e30f7da9ef8978dbd75d0bd" />
-  <project path="external/libudev-zero" name="android_external_libudev-zero" remote="opi-upstream"
-           revision="468aa61582d93aea68af8e8490f17120848dc536" />
+  <project path="external/libudev-zero" name="opi5-aosptv-android_external_libudev-zero" remote="opi5-public"
+           revision="567c6219d7a0934dbc106250cf5d5c5f5128f676" />
   <project path="external/mesa3d-panfrost" name="android_external_mesa3d_panfrost" remote="opi-upstream"
            revision="65fa67abf77305c171bc64bbff27c0d846768ecf" />
   <project path="hardware/rockchip/librga" name="opi5-aosptv-android_hardware_rockchip_librga"

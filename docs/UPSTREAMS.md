@@ -16,6 +16,7 @@ upstream recorded here.
 | `android_external_drm_hwcomposer` | GitHub fork | `https://github.com/dvab-sarma/android_external_drm_hwcomposer` |
 | `android_external_ffmpeg` | GitHub fork | `https://github.com/dvab-sarma/android_external_ffmpeg` |
 | `android_external_ffmpeg_codec2` | GitHub fork | `https://github.com/dvab-sarma/android_external_ffmpeg_codec2` |
+| `android_external_libudev-zero` | GitHub fork | `https://github.com/dvab-sarma/android_external_libudev-zero` |
 | `android_external_minigbm` | GitHub fork | `https://github.com/dvab-sarma/android_external_minigbm` |
 | `android_frameworks_av` | standalone mirror | `https://android.googlesource.com/platform/frameworks/av` |
 | `android_frameworks_base` | GitHub fork | `https://github.com/aosp-mirror/platform_frameworks_base` |
