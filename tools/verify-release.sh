@@ -52,8 +52,8 @@ require_fmq_policy() {
       exit 2
     }
   while read -r source target description; do
-    rule=$(grep -E "^\(allow ${source}(_[^ ]+)? ${target}(_[^ ]+)? \(file \([^)]*\)\)\)$" \
-      <<<"$policy" | head -n 1) || true
+    rule=$(grep -m 1 -E "^\(allow ${source}(_[^ ]+)? ${target}(_[^ ]+)? \(file \([^)]*\)\)\)$" \
+      <<<"$policy") || true
     [[ -n $rule ]] || {
       echo "Vendor policy lacks the $description FMQ rule" >&2
       exit 2
