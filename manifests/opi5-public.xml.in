@@ -24,7 +24,7 @@
   <remove-project name="platform/system/sepolicy" optional="true" />
 
   <project path="build/make" name="opi5-aosptv-android_build" remote="opi5-public"
-           revision="122d24940cc595a0cc5214d5353c38504d6ab1da">
+           revision="9eef73dae61de435de37d02b372e3f7a3f4ba4a2">
     <linkfile src="CleanSpec.mk" dest="build/CleanSpec.mk" />
     <linkfile src="buildspec.mk.default" dest="build/buildspec.mk.default" />
     <linkfile src="core" dest="build/core" />
@@ -43,7 +43,7 @@
   <project path="device/google/atv" name="opi5-aosptv-android_device_google_atv" remote="opi5-public"
            revision="e17a87e295653412f5d736b48aec8621355c7581" />
   <project path="device/opi/opi5_pro" name="opi5-aosptv-android_device_opi_opi5_pro" remote="opi5-public"
-           revision="480717091cb1dfbc0fc3c229ceaacfacac9e7457">
+           revision="13cb9a67e7360e8aa309b4f31af6bbff835a351f">
     <linkfile src="mkimg_gpt.sh" dest="opi5-mkimg.sh" />
   </project>
   <project path="device/opi/opi5_pro-kernel" name="opi5-aosptv-android_device_opi_opi5_pro-kernel"
