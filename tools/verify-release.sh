@@ -25,7 +25,11 @@ image_path_exists() {
 
 boot_script_contains() {
   local pattern=$1
-  mtype -i "$PRODUCT_OUT/boot.img" ::boot.scr 2>/dev/null | grep -aFq "$pattern"
+  # Do not use grep -q here: an early grep exit can SIGPIPE mtype and turn a
+  # successful check into status 141 under pipefail.  Consuming the complete
+  # boot script also avoids storing its embedded NUL bytes in a shell variable.
+  mtype -i "$PRODUCT_OUT/boot.img" ::boot.scr 2>/dev/null |
+    grep -aF "$pattern" >/dev/null
 }
 
 require_image_path() {
@@ -51,6 +55,10 @@ require_fmq_policy() {
       echo "Unable to inspect vendor SELinux policy" >&2
       exit 2
     }
+  grep -Eq '^\(policycap memfd_class\)$' <<<"$policy" || {
+    echo "Vendor policy does not enable the required Android 17 memfd_class capability" >&2
+    exit 2
+  }
   while read -r source target description; do
     rule=$(grep -m 1 -E "^\(allow ${source}(_[^ ]+)? ${target}(_[^ ]+)? \(file \([^)]*\)\)\)$" \
       <<<"$policy") || true

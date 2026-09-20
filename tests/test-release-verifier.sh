@@ -48,6 +48,9 @@ request=${2:-}
 present=0
 case "$request" in
   *vendor_sepolicy.cil*)
+    if [[ ${MOCK_MEMFD_CLASS_POLICY:-good} == good ]]; then
+      echo '(policycap memfd_class)'
+    fi
     if [[ ${MOCK_AUDIO_FMQ_POLICY:-good} == good ]]; then
       echo '(allow hal_audio_default tmpfs_202604 (file (read write map)))'
       echo '(allow audioserver tmpfs_202604 (file (read write map)))'
@@ -133,6 +136,10 @@ if MOCK_VENDOR_BUILD_ID=OPI5.stale-build run_verifier custom disabled >/dev/null
 fi
 if MOCK_AUDIO_FMQ_POLICY=bad run_verifier custom disabled >/dev/null 2>&1; then
   echo "Audio HAL policy without FMQ read access was accepted" >&2
+  exit 1
+fi
+if MOCK_MEMFD_CLASS_POLICY=bad run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Vendor policy without the memfd_class capability was accepted" >&2
   exit 1
 fi
 if MOCK_ADB_KEYS_PRESENT=1 MOCK_LOGCATD_PRESENT=1 \
