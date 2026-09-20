@@ -75,10 +75,14 @@ reject_image_path "$PRODUCT_OUT/system.img" \
 if [[ $PROFILE == oss ]]; then
   [[ ! -e "$SOURCE/vendor/gapps_tv" ]] || { echo "OSS checkout contains GApps" >&2; exit 2; }
   [[ ! -e "$SOURCE/vendor/opi/widevine_local" ]] || { echo "OSS checkout contains Widevine" >&2; exit 2; }
+  require_image_path "$PRODUCT_OUT/system.img" \
+    /product/priv-app/TvProvision/TvProvision.apk "AOSP TV provisioner"
   reject_image_path "$PRODUCT_OUT/system.img" \
     /product/app/YouTubeTV/YouTubeTV.apk "Google YouTube"
 else
   [[ -f "$SOURCE/vendor/gapps_tv/arm64/arm64-vendor.mk" ]] || exit 2
+  reject_image_path "$PRODUCT_OUT/system.img" \
+    /product/priv-app/TvProvision/TvProvision.apk "duplicate AOSP TV provisioner"
   require_image_path "$PRODUCT_OUT/system.img" \
     /product/app/YouTubeTV/YouTubeTV.apk "Google YouTube"
   reject_image_path "$PRODUCT_OUT/system.img" \

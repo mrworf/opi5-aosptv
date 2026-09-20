@@ -39,11 +39,12 @@ SIGNED_IMAGES="$OUTPUT_DIR/signed-images.zip"
   echo "Refusing to overwrite existing signed output in $OUTPUT_DIR" >&2; exit 2;
 }
 "$SIGNER" -d "$KEY_DIR" \
-  -k "build/make/target/product/security/bluetooth=$KEY_DIR/bluetooth" \
-  -k "build/make/target/product/security/nfc=$KEY_DIR/nfc" \
+  -k "build/make/target/product/security/sdk_sandbox=build/make/target/product/security/sdk_sandbox" \
   -k "build/make/target/product/security/cts_uicc_2021=$KEY_DIR/cts_uicc_2021" \
   --override_apex_keys "$KEY_DIR/apex.pem" \
   "${candidates[0]}" "$SIGNED_TARGET_FILES"
+"$(dirname "$0")/verify-signed-target-files.sh" \
+  --source "$SOURCE" --key-dir "$KEY_DIR" --target-files "$SIGNED_TARGET_FILES"
 "$IMAGE_BUILDER" "$SIGNED_TARGET_FILES" "$SIGNED_IMAGES"
 
 STAGE="$OUTPUT_DIR/images"

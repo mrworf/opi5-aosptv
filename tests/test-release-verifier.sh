@@ -53,6 +53,7 @@ case "$request" in
   *GooglePhotos*) present=${MOCK_PHOTOS_PRESENT:-0} ;;
   *AndroidMediaShell*) present=${MOCK_MEDIASHELL_PRESENT:-0} ;;
   *Backdrop*) present=${MOCK_BACKDROP_PRESENT:-0} ;;
+  *TvProvision*) present=${MOCK_TVPROVISION_PRESENT:-0} ;;
   *adb_keys*) present=${MOCK_ADB_KEYS_PRESENT:-0} ;;
   *logcatd*) present=${MOCK_LOGCATD_PRESENT:-0} ;;
 esac
@@ -138,12 +139,24 @@ if MOCK_BACKDROP_PRESENT=1 run_verifier custom disabled >/dev/null 2>&1; then
   echo "Custom image containing the Cast-dependent Backdrop dream was accepted" >&2
   exit 1
 fi
-MOCK_YOUTUBE_PRESENT=0 MOCK_PHOTOS_PRESENT=0 run_verifier oss disabled >/dev/null
-if MOCK_YOUTUBE_PRESENT=1 MOCK_PHOTOS_PRESENT=0 run_verifier oss disabled >/dev/null 2>&1; then
+if MOCK_TVPROVISION_PRESENT=1 run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Custom image containing a second setup wizard was accepted" >&2
+  exit 1
+fi
+MOCK_TVPROVISION_PRESENT=1 MOCK_YOUTUBE_PRESENT=0 MOCK_PHOTOS_PRESENT=0 \
+  run_verifier oss disabled >/dev/null
+if MOCK_TVPROVISION_PRESENT=0 MOCK_YOUTUBE_PRESENT=0 \
+    run_verifier oss disabled >/dev/null 2>&1; then
+  echo "OSS image without its setup wizard was accepted" >&2
+  exit 1
+fi
+if MOCK_TVPROVISION_PRESENT=1 MOCK_YOUTUBE_PRESENT=1 MOCK_PHOTOS_PRESENT=0 \
+    run_verifier oss disabled >/dev/null 2>&1; then
   echo "OSS image containing YouTube was accepted" >&2
   exit 1
 fi
-if MOCK_YOUTUBE_PRESENT=0 MOCK_PHOTOS_PRESENT=1 run_verifier oss disabled >/dev/null 2>&1; then
+if MOCK_TVPROVISION_PRESENT=1 MOCK_YOUTUBE_PRESENT=0 MOCK_PHOTOS_PRESENT=1 \
+    run_verifier oss disabled >/dev/null 2>&1; then
   echo "OSS image containing Google Photos was accepted" >&2
   exit 1
 fi
@@ -151,7 +164,8 @@ if MOCK_FLICKY_PRESENT=0 run_verifier custom disabled >/dev/null 2>&1; then
   echo "Custom image without Flicky was accepted" >&2
   exit 1
 fi
-if MOCK_FLICKY_PRESENT=0 MOCK_YOUTUBE_PRESENT=0 run_verifier oss disabled >/dev/null 2>&1; then
+if MOCK_TVPROVISION_PRESENT=1 MOCK_FLICKY_PRESENT=0 MOCK_YOUTUBE_PRESENT=0 \
+    run_verifier oss disabled >/dev/null 2>&1; then
   echo "OSS image without Flicky was accepted" >&2
   exit 1
 fi
