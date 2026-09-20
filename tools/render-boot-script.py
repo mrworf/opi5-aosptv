@@ -29,7 +29,11 @@ def render_payload(source: str, variant: str) -> bytes:
     return source.encode("utf-8")
 
 
-def uimage(payload: bytes) -> bytes:
+def uimage(script: bytes) -> bytes:
+    # IH_TYPE_SCRIPT data starts with a big-endian table of script lengths,
+    # terminated by a zero word.  A raw text payload has a valid legacy-image
+    # checksum but U-Boot's source command rejects it with BOOTM_ERR_RESET.
+    payload = struct.pack(">II", len(script), 0) + script
     timestamp = int(os.environ.get("SOURCE_DATE_EPOCH", "0"))
     name = b"Orange Pi 5 Android boot".ljust(32, b"\0")
     fields = (

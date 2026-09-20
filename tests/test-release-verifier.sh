@@ -26,6 +26,22 @@ touch "$PRODUCT_OUT/boot.img" "$PRODUCT_OUT/system.img" "$PRODUCT_OUT/vendor.img
   "$OSS_PRODUCT_OUT/boot.img" "$OSS_PRODUCT_OUT/system.img" "$OSS_PRODUCT_OUT/vendor.img"
 touch "$SOURCE/vendor/gapps_tv/arm64/arm64-vendor.mk"
 
+cat >"$TEST_ROOT/boot.cmd" <<'EOF'
+if test "${recovery}" = "true"; then
+    setenv recovery_bootargs "androidboot.boot_device=${boot_device}"
+else
+    setenv recovery_bootargs ""
+fi;
+setenv bootargs "${recovery_bootargs} androidboot.hardware=opi5 androidboot.selinux=permissive"
+booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
+EOF
+python3 "$ROOT/tools/render-boot-script.py" --input "$TEST_ROOT/boot.cmd" \
+  --output "$TEST_ROOT/user.scr" --variant user
+python3 "$ROOT/tools/render-boot-script.py" --input "$TEST_ROOT/boot.cmd" \
+  --output "$TEST_ROOT/userdebug.scr" --variant userdebug
+cp "$TEST_ROOT/user.scr" "$PRODUCT_OUT/boot.img"
+cp "$TEST_ROOT/user.scr" "$OSS_PRODUCT_OUT/boot.img"
+
 cat > "$MOCK_BIN/debugfs" <<'EOF'
 #!/usr/bin/env bash
 request=${2:-}
@@ -74,14 +90,14 @@ run_verifier() {
 
 # Hardened builds must not request permissive SELinux, while development builds
 # retain the board's explicit diagnostic mode.
-printf 'androidboot.selinux=permissive\n' > "$PRODUCT_OUT/boot.img"
+cp "$TEST_ROOT/userdebug.scr" "$PRODUCT_OUT/boot.img"
 if run_verifier custom disabled user >/dev/null 2>&1; then
   echo "Permissive user image was accepted" >&2
   exit 1
 fi
 MOCK_ADB_KEYS_PRESENT=1 MOCK_LOGCATD_PRESENT=1 \
   run_verifier custom disabled userdebug >/dev/null
-: > "$PRODUCT_OUT/boot.img"
+cp "$TEST_ROOT/user.scr" "$PRODUCT_OUT/boot.img"
 
 if MOCK_ADB_KEYS_PRESENT=0 run_verifier custom disabled user >/dev/null 2>&1; then
   echo "User image without the pre-authorized ADB public key was accepted" >&2

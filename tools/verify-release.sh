@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 
 PROFILE= WIDEVINE= VARIANT= SOURCE= KERNEL_OUT=
 while [[ $# -gt 0 ]]; do
@@ -44,6 +45,8 @@ reject_image_path() {
 for image in boot.img system.img vendor.img; do
   [[ -f "$PRODUCT_OUT/$image" ]] || { echo "Missing $image" >&2; exit 2; }
 done
+mtype -i "$PRODUCT_OUT/boot.img" ::boot.scr 2>/dev/null |
+  python3 "$ROOT/tools/verify-boot-script.py" --input - --variant "$VARIANT"
 if [[ $VARIANT == user ]]; then
   if boot_script_contains 'androidboot.selinux=permissive'; then
     echo "User boot image requests permissive SELinux" >&2
