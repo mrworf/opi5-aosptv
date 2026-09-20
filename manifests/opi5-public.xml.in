@@ -43,7 +43,7 @@
   <project path="device/google/atv" name="opi5-aosptv-android_device_google_atv" remote="opi5-public"
            revision="e17a87e295653412f5d736b48aec8621355c7581" />
   <project path="device/opi/opi5_pro" name="opi5-aosptv-android_device_opi_opi5_pro" remote="opi5-public"
-           revision="9640d74d48a4f19d9af0c31ae73d3df8ac6532a8">
+           revision="c58b57b753ae2f5f81f431652615a0e03e4f46a5">
     <linkfile src="mkimg_gpt.sh" dest="opi5-mkimg.sh" />
   </project>
   <project path="device/opi/opi5_pro-kernel" name="opi5-aosptv-android_device_opi_opi5_pro-kernel"
@@ -62,14 +62,14 @@
   <project path="external/mesa3d-panfrost" name="android_external_mesa3d_panfrost" remote="opi-upstream"
            revision="65fa67abf77305c171bc64bbff27c0d846768ecf" />
   <project path="hardware/rockchip/librga" name="opi5-aosptv-android_hardware_rockchip_librga"
-           remote="opi5-public" revision="9e1d19c5461c94ed5c58085d5d05346d41d3b0a6" />
+           remote="opi5-public" revision="db9622afe7208ce697ea6eb9cf7594e97f762d31" />
 
   <project path="external/drm_hwcomposer" name="opi5-aosptv-android_external_drm_hwcomposer" remote="opi5-public"
            revision="9932ff80a3f148fc1be768b211ac356a35845336" />
   <project path="external/ffmpeg" name="opi5-aosptv-android_external_ffmpeg" remote="opi5-public"
            revision="ba62c030c4940bc5613d6d21b4ce8c74e3ce1d81" />
   <project path="external/ffmpeg_codec2" name="opi5-aosptv-android_external_ffmpeg_codec2" remote="opi5-public"
-           revision="cea46058fb04af80d760757e77ce263e4e831f7e" />
+           revision="eb27455ed5f395e63e83bca00c31b2259d15c647" />
   <project path="external/minigbm" name="opi5-aosptv-android_external_minigbm" remote="opi5-public"
            revision="a0f84ae927184c159f7d435af7721f1c6a38239a" />
   <project path="frameworks/av" name="opi5-aosptv-android_frameworks_av" remote="opi5-public"
@@ -85,13 +85,13 @@
   <project path="packages/modules/Permission" name="opi5-aosptv-android_packages_modules_Permission" remote="opi5-public"
            revision="6d7789b20d417931b7401407d35111cd7056c864" />
   <project path="packages/modules/Wifi" name="opi5-aosptv-android_packages_modules_Wifi" remote="opi5-public"
-           revision="d2e38259207f3fb8e96d36cde2432a99a5077c0f" />
+           revision="41d5f433a318d0a4e507dc048a4340d23f37f913" />
   <project path="system/core" name="opi5-aosptv-android_system_core" remote="opi5-public"
            revision="4c3f6004edffa12ddde2b35ef1ea363521ec54c1" />
   <project path="system/memory/libmeminfo" name="opi5-aosptv-android_system_memory_libmeminfo" remote="opi5-public"
            revision="d6f642ac53c6840b81a597db60088175a3d63586" />
   <project path="system/sepolicy" name="opi5-aosptv-android_system_sepolicy" remote="opi5-public"
-           revision="3e10d0918ae9e0c9540c0efa7f600dd4b8e9db40" />
+           revision="a9f577de3975ce79ddce2f44de90042c398b1345" />
 
   <remove-project name="device/amlogic/yukawa" optional="true" />
   <remove-project name="device/amlogic/yukawa-kernel" optional="true" />
