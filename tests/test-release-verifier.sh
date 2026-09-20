@@ -47,6 +47,14 @@ cat > "$MOCK_BIN/debugfs" <<'EOF'
 request=${2:-}
 present=0
 case "$request" in
+  *vendor_sepolicy.cil*)
+    if [[ ${MOCK_AUDIO_FMQ_POLICY:-good} == good ]]; then
+      echo '(allow hal_audio_default tmpfs_202604 (file (read write map)))'
+    else
+      echo '(allow hal_audio_default tmpfs_202604 (file (write map)))'
+    fi
+    exit 0
+    ;;
   *com.google.android.widevine*) present=${MOCK_WIDEVINE_PRESENT:-0} ;;
   *Flicky*) present=${MOCK_FLICKY_PRESENT:-1} ;;
   *YouTubeTV*) present=${MOCK_YOUTUBE_PRESENT:-1} ;;
@@ -105,6 +113,10 @@ if MOCK_ADB_KEYS_PRESENT=0 run_verifier custom disabled user >/dev/null 2>&1; th
   exit 1
 fi
 export MOCK_ADB_KEYS_PRESENT=1
+if MOCK_AUDIO_FMQ_POLICY=bad run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Audio HAL policy without FMQ read access was accepted" >&2
+  exit 1
+fi
 if MOCK_ADB_KEYS_PRESENT=1 MOCK_LOGCATD_PRESENT=1 \
     run_verifier custom disabled user >/dev/null 2>&1; then
   echo "User image containing persistent logcatd was accepted" >&2

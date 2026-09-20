@@ -42,9 +42,31 @@ reject_image_path() {
   fi
 }
 
+require_audio_fmq_policy() {
+  local policy rule permission
+  policy=$(debugfs -R "cat /etc/selinux/vendor_sepolicy.cil" \
+    "$PRODUCT_OUT/vendor.img" 2>/dev/null) || {
+      echo "Unable to inspect vendor SELinux policy" >&2
+      exit 2
+    }
+  rule=$(grep -E '^\(allow hal_audio_default tmpfs_[^ ]+ \(file \([^)]*\)\)\)$' \
+    <<<"$policy" | head -n 1) || true
+  [[ -n $rule ]] || {
+    echo "Vendor policy lacks the audio HAL generic-tmpfs FMQ rule" >&2
+    exit 2
+  }
+  for permission in read write map; do
+    grep -qw "$permission" <<<"$rule" || {
+      echo "Audio HAL generic-tmpfs FMQ rule lacks $permission permission" >&2
+      exit 2
+    }
+  done
+}
+
 for image in boot.img system.img vendor.img; do
   [[ -f "$PRODUCT_OUT/$image" ]] || { echo "Missing $image" >&2; exit 2; }
 done
+require_audio_fmq_policy
 mtype -i "$PRODUCT_OUT/boot.img" ::boot.scr 2>/dev/null |
   python3 "$ROOT/tools/verify-boot-script.py" --input - --variant "$VARIANT"
 if [[ $VARIANT == user ]]; then
