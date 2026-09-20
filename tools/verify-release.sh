@@ -2,18 +2,20 @@
 set -euo pipefail
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 
-PROFILE= WIDEVINE= VARIANT= SOURCE= KERNEL_OUT=
+PROFILE= WIDEVINE= VARIANT= BUILD_ID= SOURCE= KERNEL_OUT=
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --profile) PROFILE=$2; shift 2 ;;
     --widevine) WIDEVINE=$2; shift 2 ;;
     --variant) VARIANT=$2; shift 2 ;;
+    --build-id) BUILD_ID=$2; shift 2 ;;
     --source) SOURCE=$2; shift 2 ;;
     --kernel-out) KERNEL_OUT=$2; shift 2 ;;
     *) echo "Unknown option: $1" >&2; exit 2 ;;
   esac
 done
 [[ $VARIANT == userdebug || $VARIANT == user ]] || { echo "Invalid build variant" >&2; exit 2; }
+[[ -n $BUILD_ID ]] || { echo "Missing build ID" >&2; exit 2; }
 PRODUCT_OUT="$SOURCE/out/target/product/opi5_pro"
 image_path_exists() {
   local image=$1 path=$2 output
@@ -42,7 +44,7 @@ reject_image_path() {
   fi
 }
 
-require_audio_fmq_policy() {
+require_fmq_policy() {
   local policy rule permission source target description
   policy=$(debugfs -R "cat /etc/selinux/vendor_sepolicy.cil" \
     "$PRODUCT_OUT/vendor.img" 2>/dev/null) || {
@@ -50,7 +52,7 @@ require_audio_fmq_policy() {
       exit 2
     }
   while read -r source target description; do
-    rule=$(grep -E "^\(allow ${source}(_[^ ]+)? ${target}_[^ ]+ \(file \([^)]*\)\)\)$" \
+    rule=$(grep -E "^\(allow ${source}(_[^ ]+)? ${target}(_[^ ]+)? \(file \([^)]*\)\)\)$" \
       <<<"$policy" | head -n 1) || true
     [[ -n $rule ]] || {
       echo "Vendor policy lacks the $description FMQ rule" >&2
@@ -66,13 +68,29 @@ require_audio_fmq_policy() {
 hal_audio_default tmpfs audio-HAL
 audioserver tmpfs audio-server
 system_server audioserver_tmpfs audio-policy
+hal_power_default hal_power_default_tmpfs power-HAL
+system_server hal_power_default_tmpfs power-manager
 EOF
+}
+
+require_partition_build_id() {
+  local image=$1 path=$2 property=$3 partition=$4 actual
+  actual=$(debugfs -R "cat $path" "$image" 2>/dev/null |
+    awk -F= -v key="$property" '$1 == key { print $2; exit }')
+  [[ $actual == "OPI5.$BUILD_ID" ]] || {
+    echo "$partition build ID mismatch: expected OPI5.$BUILD_ID, found ${actual:-missing}" >&2
+    exit 2
+  }
 }
 
 for image in boot.img system.img vendor.img; do
   [[ -f "$PRODUCT_OUT/$image" ]] || { echo "Missing $image" >&2; exit 2; }
 done
-require_audio_fmq_policy
+require_fmq_policy
+require_partition_build_id "$PRODUCT_OUT/system.img" /system/build.prop \
+  ro.build.version.incremental system
+require_partition_build_id "$PRODUCT_OUT/vendor.img" /build.prop \
+  ro.vendor.build.version.incremental vendor
 mtype -i "$PRODUCT_OUT/boot.img" ::boot.scr 2>/dev/null |
   python3 "$ROOT/tools/verify-boot-script.py" --input - --variant "$VARIANT"
 if [[ $VARIANT == user ]]; then

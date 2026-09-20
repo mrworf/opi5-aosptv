@@ -81,6 +81,11 @@ else
   lunch "aosp_opi5_tv_custom-cp2a-$OPI5_VARIANT"
 fi
 if [[ $OPI5_VARIANT == user ]]; then
+  # BUILD_NUMBER is not a complete Ninja dependency for every partition's
+  # build.prop. Reinstall the product tree before release packaging so an
+  # incremental build cannot mix a new system identity with stale vendor/ODM
+  # identities from the previous release.
+  m -j26 installclean
   m -j26 target-files-package sign_target_files_apks img_from_target_files
   "$ROOT/tools/sign-release-images.sh" \
     --source "$SOURCE" --product-out "$SOURCE/out/target/product/opi5_pro" \
@@ -95,7 +100,7 @@ OPI5_IMAGE_PATH="$IMAGE_PATH" \
   "$ROOT/tools/assemble-image.sh" --product-out "$SOURCE/out/target/product/opi5_pro"
 "$ROOT/tools/verify-release.sh" \
   --profile "$OPI5_PROFILE" --widevine "$OPI5_WIDEVINE" --variant "$OPI5_VARIANT" \
-  --source "$SOURCE" --kernel-out "$KERNEL_OUT"
+  --build-id "$OPI5_SOURCE_ID" --source "$SOURCE" --kernel-out "$KERNEL_OUT"
 "$ROOT/tools/write-release-metadata.sh" \
   --profile "$OPI5_PROFILE" --widevine "$OPI5_WIDEVINE" --variant "$OPI5_VARIANT" \
   --build-id "$OPI5_SOURCE_ID" \

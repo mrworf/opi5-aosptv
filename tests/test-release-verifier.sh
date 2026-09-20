@@ -52,11 +52,21 @@ case "$request" in
       echo '(allow hal_audio_default tmpfs_202604 (file (read write map)))'
       echo '(allow audioserver tmpfs_202604 (file (read write map)))'
       echo '(allow system_server audioserver_tmpfs_202604 (file (read write map)))'
+      echo '(allow hal_power_default hal_power_default_tmpfs (file (read write getattr map)))'
+      echo '(allow system_server_202604 hal_power_default_tmpfs (file (read write getattr map)))'
     else
       echo '(allow hal_audio_default tmpfs_202604 (file (write map)))'
       echo '(allow audioserver tmpfs_202604 (file (read write map)))'
       echo '(allow system_server audioserver_tmpfs_202604 (file (read write map)))'
     fi
+    exit 0
+    ;;
+  *'/system/build.prop'*)
+    printf 'ro.build.version.incremental=%s\n' "${MOCK_SYSTEM_BUILD_ID:-OPI5.test-build}"
+    exit 0
+    ;;
+  *'cat /build.prop'*)
+    printf 'ro.vendor.build.version.incremental=%s\n' "${MOCK_VENDOR_BUILD_ID:-OPI5.test-build}"
     exit 0
     ;;
   *com.google.android.widevine*) present=${MOCK_WIDEVINE_PRESENT:-0} ;;
@@ -98,7 +108,7 @@ run_verifier() {
   [[ $profile != oss ]] || source=$OSS_SOURCE
   env PATH="$MOCK_BIN:$PATH" OPI5_KERNEL_PACKAGE_DIR="$PACKAGE_DIR" \
     "$ROOT/tools/verify-release.sh" --profile "$profile" --widevine "$widevine" --variant "$variant" \
-    --source "$source" --kernel-out "$KERNEL_OUT"
+    --build-id test-build --source "$source" --kernel-out "$KERNEL_OUT"
 }
 
 # Hardened builds must not request permissive SELinux, while development builds
@@ -117,6 +127,10 @@ if MOCK_ADB_KEYS_PRESENT=0 run_verifier custom disabled user >/dev/null 2>&1; th
   exit 1
 fi
 export MOCK_ADB_KEYS_PRESENT=1
+if MOCK_VENDOR_BUILD_ID=OPI5.stale-build run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Stale vendor build identity was accepted" >&2
+  exit 1
+fi
 if MOCK_AUDIO_FMQ_POLICY=bad run_verifier custom disabled >/dev/null 2>&1; then
   echo "Audio HAL policy without FMQ read access was accepted" >&2
   exit 1
