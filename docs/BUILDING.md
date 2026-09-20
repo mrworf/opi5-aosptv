@@ -19,18 +19,20 @@ rate limits and can be overridden with `OPI5_SYNC_JOBS`.
 
 ## Build variants
 
-Content profiles and Android build variants are independent. `userdebug` is
-the default and keeps authenticated Ethernet ADB plus persistent kernel-log
-capture for development:
+Content profiles and Android build variants are independent. Authenticated
+Ethernet ADB is enabled in every variant because the board deliberately keeps
+all external USB connectors in host mode. `userdebug` is the default and also
+keeps persistent kernel-log capture for development:
 
 ```bash
 ./build.sh --profile oss --variant userdebug
 ```
 
-The `user` variant is non-debuggable, does not start Ethernet ADB or persistent
-kernel logging, enables Android debugfs restrictions, and removes the board's
-permissive SELinux boot argument. On the first `user` build, the controller
-generates an ignored local release-signing identity before compilation:
+The `user` variant is non-debuggable, keeps ADB authentication enforced, does
+not start persistent kernel logging, enables Android debugfs restrictions, and
+removes the board's permissive SELinux boot argument. On the first `user`
+build, the controller generates an ignored local release-signing identity
+before compilation:
 
 ```bash
 ./build.sh --profile oss --variant user
