@@ -46,6 +46,10 @@ rsync -a --delete --exclude=.git/ "$STATIC_KERNEL/" "$KERNEL_PACKAGE/"
 install -m 0644 "$KERNEL_OUT/arch/arm64/boot/Image" "$KERNEL_PACKAGE/Image"
 install -m 0644 "$KERNEL_OUT/arch/arm64/boot/dts/rockchip/rk3588s-orangepi-5.dtb" \
   "$KERNEL_PACKAGE/rk3588s-orangepi-5.dtb"
+python3 "$ROOT/tools/render-boot-script.py" \
+  --input "$KERNEL_PACKAGE/boot.cmd" \
+  --output "$KERNEL_PACKAGE/boot.scr" \
+  --variant "$OPI5_VARIANT"
 
 PROFILE_MK="$SOURCE/out/opi5/opi5-profile.mk"
 export OPI5_BUILD_PROFILE="$OPI5_PROFILE"
