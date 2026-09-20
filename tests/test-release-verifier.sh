@@ -83,23 +83,25 @@ MOCK_ADB_KEYS_PRESENT=1 MOCK_LOGCATD_PRESENT=1 \
   run_verifier custom disabled userdebug >/dev/null
 : > "$PRODUCT_OUT/boot.img"
 
-if MOCK_ADB_KEYS_PRESENT=1 run_verifier custom disabled user >/dev/null 2>&1; then
-  echo "User image containing ADB authorization keys was accepted" >&2
+if MOCK_ADB_KEYS_PRESENT=0 run_verifier custom disabled user >/dev/null 2>&1; then
+  echo "User image without the pre-authorized ADB public key was accepted" >&2
   exit 1
 fi
-if MOCK_LOGCATD_PRESENT=1 run_verifier custom disabled user >/dev/null 2>&1; then
+export MOCK_ADB_KEYS_PRESENT=1
+if MOCK_ADB_KEYS_PRESENT=1 MOCK_LOGCATD_PRESENT=1 \
+    run_verifier custom disabled user >/dev/null 2>&1; then
   echo "User image containing persistent logcatd was accepted" >&2
   exit 1
 fi
 
 # debugfs returns success even for a missing path; absence must be judged by output.
-MOCK_WIDEVINE_PRESENT=0 run_verifier custom disabled >/dev/null
-if MOCK_WIDEVINE_PRESENT=0 run_verifier custom enabled >/dev/null 2>&1; then
+MOCK_ADB_KEYS_PRESENT=1 MOCK_WIDEVINE_PRESENT=0 run_verifier custom disabled >/dev/null
+if MOCK_ADB_KEYS_PRESENT=1 MOCK_WIDEVINE_PRESENT=0 run_verifier custom enabled >/dev/null 2>&1; then
   echo "Missing Widevine APEX was accepted" >&2
   exit 1
 fi
-MOCK_WIDEVINE_PRESENT=1 run_verifier custom enabled >/dev/null
-if MOCK_WIDEVINE_PRESENT=1 run_verifier custom disabled >/dev/null 2>&1; then
+MOCK_ADB_KEYS_PRESENT=1 MOCK_WIDEVINE_PRESENT=1 run_verifier custom enabled >/dev/null
+if MOCK_ADB_KEYS_PRESENT=1 MOCK_WIDEVINE_PRESENT=1 run_verifier custom disabled >/dev/null 2>&1; then
   echo "Unexpected Widevine APEX was accepted" >&2
   exit 1
 fi

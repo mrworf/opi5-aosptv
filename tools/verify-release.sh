@@ -50,18 +50,16 @@ if [[ $VARIANT == user ]]; then
     exit 2
   fi
   reject_image_path "$PRODUCT_OUT/system.img" \
-    /product/etc/security/adb_keys "ADB authorization keys in user build"
-  reject_image_path "$PRODUCT_OUT/system.img" \
     /system/bin/logcatd "persistent log daemon in user build"
 else
   boot_script_contains 'androidboot.selinux=permissive' || {
     echo "Userdebug boot image unexpectedly lacks permissive SELinux" >&2; exit 2;
   }
   require_image_path "$PRODUCT_OUT/system.img" \
-    /product/etc/security/adb_keys "userdebug ADB authorization keys"
-  require_image_path "$PRODUCT_OUT/system.img" \
     /system/bin/logcatd "userdebug persistent log daemon"
 fi
+require_image_path "$PRODUCT_OUT/system.img" \
+  /product/etc/security/adb_keys "pre-authorized Ethernet ADB public key"
 cmp "$KERNEL_OUT/arch/arm64/boot/Image" "$OPI5_KERNEL_PACKAGE_DIR/Image"
 cmp "$KERNEL_OUT/arch/arm64/boot/dts/rockchip/rk3588s-orangepi-5.dtb" \
   "$OPI5_KERNEL_PACKAGE_DIR/rk3588s-orangepi-5.dtb"
