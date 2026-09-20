@@ -43,7 +43,7 @@
   <project path="device/google/atv" name="opi5-aosptv-android_device_google_atv" remote="opi5-public"
            revision="e17a87e295653412f5d736b48aec8621355c7581" />
   <project path="device/opi/opi5_pro" name="opi5-aosptv-android_device_opi_opi5_pro" remote="opi5-public"
-           revision="13cb9a67e7360e8aa309b4f31af6bbff835a351f">
+           revision="59f3d35d7f3064b9c8811e0318545f638b8b77f5">
     <linkfile src="mkimg_gpt.sh" dest="opi5-mkimg.sh" />
   </project>
   <project path="device/opi/opi5_pro-kernel" name="opi5-aosptv-android_device_opi_opi5_pro-kernel"
@@ -91,7 +91,7 @@
   <project path="system/memory/libmeminfo" name="opi5-aosptv-android_system_memory_libmeminfo" remote="opi5-public"
            revision="d6f642ac53c6840b81a597db60088175a3d63586" />
   <project path="system/sepolicy" name="opi5-aosptv-android_system_sepolicy" remote="opi5-public"
-           revision="dfe0f0686b89be5cd9e08d6cc4ff08332bfd635e" />
+           revision="3e10d0918ae9e0c9540c0efa7f600dd4b8e9db40" />
 
   <remove-project name="device/amlogic/yukawa" optional="true" />
   <remove-project name="device/amlogic/yukawa-kernel" optional="true" />
