@@ -43,24 +43,30 @@ reject_image_path() {
 }
 
 require_audio_fmq_policy() {
-  local policy rule permission
+  local policy rule permission source target description
   policy=$(debugfs -R "cat /etc/selinux/vendor_sepolicy.cil" \
     "$PRODUCT_OUT/vendor.img" 2>/dev/null) || {
       echo "Unable to inspect vendor SELinux policy" >&2
       exit 2
     }
-  rule=$(grep -E '^\(allow hal_audio_default tmpfs_[^ ]+ \(file \([^)]*\)\)\)$' \
-    <<<"$policy" | head -n 1) || true
-  [[ -n $rule ]] || {
-    echo "Vendor policy lacks the audio HAL generic-tmpfs FMQ rule" >&2
-    exit 2
-  }
-  for permission in read write map; do
-    grep -qw "$permission" <<<"$rule" || {
-      echo "Audio HAL generic-tmpfs FMQ rule lacks $permission permission" >&2
+  while read -r source target description; do
+    rule=$(grep -E "^\(allow ${source}(_[^ ]+)? ${target}_[^ ]+ \(file \([^)]*\)\)\)$" \
+      <<<"$policy" | head -n 1) || true
+    [[ -n $rule ]] || {
+      echo "Vendor policy lacks the $description FMQ rule" >&2
       exit 2
     }
-  done
+    for permission in read write map; do
+      grep -qw "$permission" <<<"$rule" || {
+        echo "$description FMQ rule lacks $permission permission" >&2
+        exit 2
+      }
+    done
+  done <<'EOF'
+hal_audio_default tmpfs audio-HAL
+audioserver tmpfs audio-server
+system_server audioserver_tmpfs audio-policy
+EOF
 }
 
 for image in boot.img system.img vendor.img; do

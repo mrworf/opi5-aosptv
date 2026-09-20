@@ -50,8 +50,12 @@ case "$request" in
   *vendor_sepolicy.cil*)
     if [[ ${MOCK_AUDIO_FMQ_POLICY:-good} == good ]]; then
       echo '(allow hal_audio_default tmpfs_202604 (file (read write map)))'
+      echo '(allow audioserver tmpfs_202604 (file (read write map)))'
+      echo '(allow system_server audioserver_tmpfs_202604 (file (read write map)))'
     else
       echo '(allow hal_audio_default tmpfs_202604 (file (write map)))'
+      echo '(allow audioserver tmpfs_202604 (file (read write map)))'
+      echo '(allow system_server audioserver_tmpfs_202604 (file (read write map)))'
     fi
     exit 0
     ;;
