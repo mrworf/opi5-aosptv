@@ -43,7 +43,7 @@
   <project path="device/google/atv" name="opi5-aosptv-android_device_google_atv" remote="opi5-public"
            revision="e17a87e295653412f5d736b48aec8621355c7581" />
   <project path="device/opi/opi5_pro" name="opi5-aosptv-android_device_opi_opi5_pro" remote="opi5-public"
-           revision="ab0ec95d4d32d20ddaed71448c7ec6e96c679fcf">
+           revision="6a7795973eb509f99188f95f06db9fe740a146b0">
     <linkfile src="mkimg_gpt.sh" dest="opi5-mkimg.sh" />
   </project>
   <project path="device/opi/opi5_pro-kernel" name="opi5-aosptv-android_device_opi_opi5_pro-kernel"
