@@ -84,7 +84,7 @@ EOF
 require_partition_build_id() {
   local image=$1 path=$2 property=$3 partition=$4 actual
   actual=$(debugfs -R "cat $path" "$image" 2>/dev/null |
-    awk -F= -v key="$property" '$1 == key { print $2; exit }')
+    awk -F= -v key="$property" '$1 == key { value=$2 } END { print value }')
   [[ $actual == "OPI5.$BUILD_ID" ]] || {
     echo "$partition build ID mismatch: expected OPI5.$BUILD_ID, found ${actual:-missing}" >&2
     exit 2
