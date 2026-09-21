@@ -75,7 +75,7 @@
   <project path="frameworks/av" name="opi5-aosptv-android_frameworks_av" remote="opi5-public"
            revision="7d0fb70e484cf34aeee5c105379fe0caffc46aba" />
   <project path="frameworks/base" name="opi5-aosptv-android_frameworks_base" remote="opi5-public"
-           revision="398cba104e2b992d818fa572c964ac30ad5c14f0" />
+           revision="c167666ce191808f996d8d3b16f8b9401960c24a" />
   <project path="frameworks/native" name="opi5-aosptv-android_frameworks_native" remote="opi5-public"
            revision="2cc2eb978fa01e062b7a9d50883834e80b82c754" />
   <project path="packages/apps/TvSettings" name="opi5-aosptv-android_packages_apps_TvSettings" remote="opi5-public"
