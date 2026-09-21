@@ -49,7 +49,7 @@
   <project path="device/opi/opi5_pro-kernel" name="opi5-aosptv-android_device_opi_opi5_pro-kernel"
            remote="opi5-public" revision="6a45e2c9e620732fd818ce1a3d707ea82b1e44b7" />
   <project path="kernel/opi/rk3588" name="opi5-aosptv-android_kernel_rk_opi" remote="opi5-public"
-           revision="3feabb05689a796be3de45609bc1ece01b725044" />
+           revision="58e3bedf63c2a65f9cfc0fac139849f212b0a22e" />
   <project path="vendor/opi" name="opi5-aosptv-proprietary_vendor_opi" remote="opi5-public"
            revision="2719a18d899bc89ac920ac4ffc07b8fcf20c91b3" />
 
