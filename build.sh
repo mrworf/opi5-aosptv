@@ -80,12 +80,11 @@ if [[ $OPI5_PROFILE == oss ]]; then
 else
   lunch "aosp_opi5_tv_custom-cp2a-$OPI5_VARIANT"
 fi
+# BUILD_NUMBER is not a complete Ninja dependency for every partition's
+# build.prop. Reinstall the product tree for both variants so incremental
+# builds cannot mix system and vendor identities from different releases.
+m -j26 installclean
 if [[ $OPI5_VARIANT == user ]]; then
-  # BUILD_NUMBER is not a complete Ninja dependency for every partition's
-  # build.prop. Reinstall the product tree before release packaging so an
-  # incremental build cannot mix a new system identity with stale vendor/ODM
-  # identities from the previous release.
-  m -j26 installclean
   m -j26 target-files-package sign_target_files_apks img_from_target_files
   "$ROOT/tools/sign-release-images.sh" \
     --source "$SOURCE" --product-out "$SOURCE/out/target/product/opi5_pro" \
