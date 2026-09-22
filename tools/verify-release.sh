@@ -91,10 +91,26 @@ require_partition_build_id() {
   }
 }
 
+require_ram_log_defaults() {
+  local properties
+  require_image_path "$PRODUCT_OUT/system.img" \
+    /system/product/etc/build.prop "product properties"
+  properties=$(debugfs -R 'cat /system/product/etc/build.prop' \
+    "$PRODUCT_OUT/system.img" 2>/dev/null) || {
+      echo "Unable to inspect product properties" >&2
+      exit 2
+    }
+  if grep -Eq '^(persist\.)?logd\.logpersistd=logcatd$' <<<"$properties"; then
+    echo "Product properties enable persistent logcat on NVMe" >&2
+    exit 2
+  fi
+}
+
 for image in boot.img system.img vendor.img; do
   [[ -f "$PRODUCT_OUT/$image" ]] || { echo "Missing $image" >&2; exit 2; }
 done
 require_fmq_policy
+require_ram_log_defaults
 require_partition_build_id "$PRODUCT_OUT/system.img" /system/build.prop \
   ro.build.version.incremental system
 require_partition_build_id "$PRODUCT_OUT/vendor.img" /build.prop \
