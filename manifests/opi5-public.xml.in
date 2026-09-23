@@ -81,7 +81,7 @@
   <project path="packages/apps/TvSettings" name="opi5-aosptv-android_packages_apps_TvSettings" remote="opi5-public"
            revision="31b907df9e0f5dd3382b28fffa1335d44ba013c7" />
   <project path="packages/modules/Bluetooth" name="opi5-aosptv-android_packages_modules_Bluetooth" remote="opi5-public"
-           revision="158be25eabd02e74821ab6f94a1faf82bbe12e3e" />
+           revision="216fd13795c7bd17247cdc1d97ec28358e28781b" />
   <project path="packages/modules/Permission" name="opi5-aosptv-android_packages_modules_Permission" remote="opi5-public"
            revision="6d7789b20d417931b7401407d35111cd7056c864" />
   <project path="packages/modules/Wifi" name="opi5-aosptv-android_packages_modules_Wifi" remote="opi5-public"
