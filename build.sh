@@ -19,6 +19,10 @@ if [[ $OPI5_PROFILE == custom ]]; then
   [[ -f "$SOURCE/vendor/gapps_tv/arm64/arm64-vendor.mk" ]] || {
     echo "Custom profile requires a valid GApps checkout" >&2; exit 2;
   }
+  [[ -x "$SOURCE/vendor/gapps_tv/verify-tv-packages.sh" ]] || {
+    echo "Custom profile requires GApps package verification metadata" >&2; exit 2;
+  }
+  ANDROID_BUILD_TOP="$SOURCE" "$SOURCE/vendor/gapps_tv/verify-tv-packages.sh"
 fi
 if [[ $OPI5_WIDEVINE == enabled ]]; then
   [[ -f "$SOURCE/vendor/opi/widevine_local/widevine-vendor.mk" ]] || {

@@ -93,6 +93,16 @@ require_partition_build_id() {
   }
 }
 
+require_partition_property() {
+  local image=$1 path=$2 property=$3 expected=$4 description=$5 actual
+  actual=$(debugfs -R "cat $path" "$image" 2>/dev/null |
+    awk -F= -v key="$property" '$1 == key { value=$2 } END { print value }')
+  [[ $actual == "$expected" ]] || {
+    echo "$description mismatch: expected $expected, found ${actual:-missing}" >&2
+    exit 2
+  }
+}
+
 for image in boot.img system.img vendor.img; do
   [[ -f "$PRODUCT_OUT/$image" ]] || { echo "Missing $image" >&2; exit 2; }
 done
@@ -101,6 +111,10 @@ require_partition_build_id "$PRODUCT_OUT/system.img" /system/build.prop \
   ro.build.version.incremental system
 require_partition_build_id "$PRODUCT_OUT/vendor.img" /build.prop \
   ro.vendor.build.version.incremental vendor
+require_partition_property "$PRODUCT_OUT/system.img" /product/etc/build.prop \
+  ro.build.characteristics tv "Android form factor"
+require_partition_property "$PRODUCT_OUT/vendor.img" /build.prop \
+  ro.opengles.version 196609 "OpenGL ES capability"
 mtype -i "$PRODUCT_OUT/boot.img" ::boot.scr 2>/dev/null |
   python3 "$ROOT/tools/verify-boot-script.py" --input - --variant "$VARIANT"
 if [[ $VARIANT == user ]]; then
@@ -127,6 +141,20 @@ require_image_path "$PRODUCT_OUT/system.img" \
   /product/app/Flicky/Flicky.apk "Flicky"
 reject_image_path "$PRODUCT_OUT/system.img" \
   /product/app/GooglePhotos/GooglePhotos.apk "Google Photos"
+require_image_path "$PRODUCT_OUT/vendor.img" \
+  /etc/permissions/opi5_tv_excluded_hardware.xml "TV hardware exclusion declarations"
+require_image_path "$PRODUCT_OUT/system.img" \
+  /system/etc/permissions/tv_core_hardware.xml "Android TV core feature declarations"
+reject_image_path "$PRODUCT_OUT/system.img" \
+  /system/etc/permissions/handheld_core_hardware.xml "handheld core feature declarations"
+reject_image_path "$PRODUCT_OUT/system.img" \
+  /system/etc/permissions/tablet_core_hardware.xml "tablet core feature declarations"
+require_image_path "$PRODUCT_OUT/vendor.img" \
+  /etc/permissions/android.hardware.camera.external.xml "USB camera feature declaration"
+require_image_path "$PRODUCT_OUT/vendor.img" \
+  /etc/external_camera_config.xml "USB camera provider configuration"
+require_image_path "$PRODUCT_OUT/vendor.img" \
+  /bin/hw/android.hardware.camera.provider-V1-external-service "USB camera provider"
 
 if [[ $PROFILE == oss ]]; then
   [[ ! -e "$SOURCE/vendor/gapps_tv" ]] || { echo "OSS checkout contains GApps" >&2; exit 2; }
@@ -137,6 +165,25 @@ if [[ $PROFILE == oss ]]; then
     /product/app/YouTubeTV/YouTubeTV.apk "Google YouTube"
 else
   [[ -f "$SOURCE/vendor/gapps_tv/arm64/arm64-vendor.mk" ]] || exit 2
+  require_image_path "$PRODUCT_OUT/system.img" \
+    /product/priv-app/Tubesky/Tubesky.apk "Google Play Store for Android TV"
+  require_image_path "$PRODUCT_OUT/system.img" \
+    /product/priv-app/PrebuiltGmsCorePano/PrebuiltGmsCorePano.apk "Google Play services for Android TV"
+  for gms_split in \
+      split_AdsDynamite_installtime.apk \
+      split_CronetDynamite_installtime.apk \
+      split_DynamiteLoader_installtime.apk \
+      split_DynamiteModulesA_installtime.apk \
+      split_DynamiteModulesC_installtime.apk \
+      split_GoogleCertificates_installtime.apk \
+      split_MapsDynamite_installtime.apk \
+      split_MeasurementDynamite_installtime.apk \
+      split_config.en.apk \
+      split_config.hdpi.apk; do
+    require_image_path "$PRODUCT_OUT/system.img" \
+      "/product/priv-app/PrebuiltGmsCorePano/$gms_split" \
+      "Google Play services split $gms_split"
+  done
   reject_image_path "$PRODUCT_OUT/system.img" \
     /product/priv-app/TvProvision/TvProvision.apk "duplicate AOSP TV provisioner"
   require_image_path "$PRODUCT_OUT/system.img" \

@@ -68,13 +68,28 @@ case "$request" in
     printf 'ro.build.version.incremental=%s\n' "${MOCK_SYSTEM_BUILD_ID:-OPI5.test-build}"
     exit 0
     ;;
+  *'cat /product/etc/build.prop'*)
+    printf 'ro.build.characteristics=%s\n' "${MOCK_BUILD_CHARACTERISTICS:-tv}"
+    exit 0
+    ;;
   *'cat /build.prop'*)
     printf 'ro.vendor.build.version.incremental=%s\n' "${MOCK_VENDOR_BUILD_ID:-OPI5.test-build}"
+    printf 'ro.opengles.version=%s\n' "${MOCK_GLES_VERSION:-196609}"
     exit 0
     ;;
   *com.google.android.widevine*) present=${MOCK_WIDEVINE_PRESENT:-0} ;;
   *Flicky*) present=${MOCK_FLICKY_PRESENT:-1} ;;
   *YouTubeTV*) present=${MOCK_YOUTUBE_PRESENT:-1} ;;
+  *Tubesky*) present=${MOCK_TUBESKY_PRESENT:-1} ;;
+  *PrebuiltGmsCorePano/split_*) present=${MOCK_GMSCORE_SPLITS_PRESENT:-1} ;;
+  *PrebuiltGmsCorePano*) present=${MOCK_GMSCORE_PRESENT:-1} ;;
+  *opi5_tv_excluded_hardware*) present=${MOCK_TV_EXCLUSIONS_PRESENT:-1} ;;
+  *tv_core_hardware*) present=${MOCK_TV_CORE_PRESENT:-1} ;;
+  *handheld_core_hardware*) present=${MOCK_HANDHELD_CORE_PRESENT:-0} ;;
+  *tablet_core_hardware*) present=${MOCK_TABLET_CORE_PRESENT:-0} ;;
+  *android.hardware.camera.external*) present=${MOCK_CAMERA_FEATURE_PRESENT:-1} ;;
+  *external_camera_config*) present=${MOCK_CAMERA_CONFIG_PRESENT:-1} ;;
+  *camera.provider-V1-external-service*) present=${MOCK_CAMERA_PROVIDER_PRESENT:-1} ;;
   *GooglePhotos*) present=${MOCK_PHOTOS_PRESENT:-0} ;;
   *AndroidMediaShell*) present=${MOCK_MEDIASHELL_PRESENT:-0} ;;
   *Backdrop*) present=${MOCK_BACKDROP_PRESENT:-0} ;;
@@ -134,6 +149,14 @@ if MOCK_VENDOR_BUILD_ID=OPI5.stale-build run_verifier custom disabled >/dev/null
   echo "Stale vendor build identity was accepted" >&2
   exit 1
 fi
+if MOCK_GLES_VERSION=0 run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Image with an incorrect GLES capability was accepted" >&2
+  exit 1
+fi
+if MOCK_BUILD_CHARACTERISTICS=tablet run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Image with non-TV build characteristics was accepted" >&2
+  exit 1
+fi
 if MOCK_AUDIO_FMQ_POLICY=bad run_verifier custom disabled >/dev/null 2>&1; then
   echo "Audio HAL policy without FMQ read access was accepted" >&2
   exit 1
@@ -162,6 +185,46 @@ fi
 
 if MOCK_YOUTUBE_PRESENT=0 run_verifier custom disabled >/dev/null 2>&1; then
   echo "Custom image without YouTube was accepted" >&2
+  exit 1
+fi
+if MOCK_TUBESKY_PRESENT=0 run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Custom image without the Android TV Play Store was accepted" >&2
+  exit 1
+fi
+if MOCK_GMSCORE_PRESENT=0 run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Custom image without Android TV Play services was accepted" >&2
+  exit 1
+fi
+if MOCK_GMSCORE_SPLITS_PRESENT=0 run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Custom image without the pinned Play services split set was accepted" >&2
+  exit 1
+fi
+if MOCK_TV_EXCLUSIONS_PRESENT=0 run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Image without TV hardware exclusions was accepted" >&2
+  exit 1
+fi
+if MOCK_TV_CORE_PRESENT=0 run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Image without Android TV core features was accepted" >&2
+  exit 1
+fi
+if MOCK_HANDHELD_CORE_PRESENT=1 run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Image with handheld core features was accepted" >&2
+  exit 1
+fi
+if MOCK_TABLET_CORE_PRESENT=1 run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Image with tablet core features was accepted" >&2
+  exit 1
+fi
+if MOCK_CAMERA_FEATURE_PRESENT=0 run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Image without the USB camera feature declaration was accepted" >&2
+  exit 1
+fi
+if MOCK_CAMERA_CONFIG_PRESENT=0 run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Image without the USB camera provider configuration was accepted" >&2
+  exit 1
+fi
+if MOCK_CAMERA_PROVIDER_PRESENT=0 run_verifier custom disabled >/dev/null 2>&1; then
+  echo "Image without the USB camera provider was accepted" >&2
   exit 1
 fi
 if MOCK_PHOTOS_PRESENT=1 run_verifier custom disabled >/dev/null 2>&1; then

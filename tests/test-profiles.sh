@@ -3,6 +3,8 @@ set -euo pipefail
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 source "$ROOT/lib/profile.sh"
 
+grep -Fq 'vendor/gapps_tv/verify-tv-packages.sh' "$ROOT/build.sh"
+
 mkdir -p "$ROOT/.state"
 TEST_ROOT=$(mktemp -d "$ROOT/.state/profile-test.XXXXXX")
 trap 'rm -rf -- "$TEST_ROOT"' EXIT
