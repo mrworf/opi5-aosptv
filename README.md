@@ -98,6 +98,10 @@ product-specific `android_app_import`. The Orange Pi TV product adds the
 `Flicky` module to `PRODUCT_PACKAGES`, which places it in the product image for
 installation on first boot. Retaining the upstream signature allows a newer
 APK signed by the same maintainer key to update the built-in copy normally.
+The product initially grants Flicky the “Install unknown apps” special access,
+so it can hand downloads directly to Android's package installer. Android still
+asks the user to confirm each app installation, and disabling Flicky's special
+access in Settings remains effective across reboots.
 
 ## Build
 

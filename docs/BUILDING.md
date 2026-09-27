@@ -84,6 +84,7 @@ bash tests/test-release-signing.sh
 bash tests/test-release-verifier.sh
 bash tests/test-release-metadata.sh
 bash tests/test-flash-command.sh
+bash tests/test-flicky-install-access.sh
 bash tests/test-documentation.sh
 ```
 

@@ -48,6 +48,8 @@ grep -Fq "stateless V4L2-request hardware wherever the codec and stream are" REA
 grep -Fq 'https://github.com/mlm-games/flicky' README.md
 grep -Fq 'https://github.com/mlm-games/flicky/releases/tag/4.5.2' README.md
 grep -Fq 'GNU GPL v3.0 only' README.md
+grep -Fq 'initially grants Flicky the “Install unknown apps” special access' README.md
+grep -Fq "disabling Flicky's special" README.md
 grep -Fq '740a3e026decde4788ab0020c78b71d45d2b75f817275b72c39da3dd059387db' README.md
 grep -Fq '4aed2f691df64a7b0fea25a6b8c80183c6dc520e049dac0178defa1d6472228f' README.md
 grep -Fq 'local/customization/gapps.xml' docs/CUSTOMIZATION.md
