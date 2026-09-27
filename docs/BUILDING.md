@@ -72,6 +72,17 @@ When this repository is nested below an existing Android checkout, bootstrap
 seeds a separate repo tool installation from the parent and still creates an
 independent shallow client. It never reuses or syncs the parent checkout.
 
+## Kernel modules
+
+`build.sh` limits modular drivers to the board hardware, USB Wi-Fi families
+covered by the bundled firmware, UVC webcams, Bluetooth support, USB audio,
+and USB keyboard, mouse, and gamepad drivers. Standard USB audio, generic HID,
+USB Bluetooth HCI, and several common gamepad drivers are built into the kernel.
+The build packages only modules listed by the current kernel `modules.order`;
+old `.ko` files in an incremental output directory cannot enter `vendor.img`.
+Because the kernel uses `CONFIG_MODVERSIONS`, always deploy its matching
+`boot.img` and `vendor.img` together.
+
 ## Controller checks
 
 Run the fast controller-level checks before a long build:
@@ -85,6 +96,7 @@ bash tests/test-release-verifier.sh
 bash tests/test-release-metadata.sh
 bash tests/test-flash-command.sh
 bash tests/test-flicky-install-access.sh
+bash tests/test-kernel-module-selection.sh
 bash tests/test-documentation.sh
 ```
 

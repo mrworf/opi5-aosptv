@@ -41,7 +41,9 @@ mkdir -p "$TMPDIR" "$GOCACHE" "$KERNEL_OUT" "$KERNEL_PACKAGE"
 CLANG_BIN="$SOURCE/prebuilts/clang/host/linux-x86/clang-r596125/bin"
 export PATH="$CLANG_BIN:$PATH"
 make -C "$KERNEL_ROOT" O="$KERNEL_OUT" ARCH=arm64 LLVM=1 LLVM_IAS=1 android_orangepi5_defconfig
+"$ROOT/tools/trim-kernel-modules.sh" "$KERNEL_ROOT" "$KERNEL_OUT"
 make -C "$KERNEL_ROOT" O="$KERNEL_OUT" ARCH=arm64 LLVM=1 LLVM_IAS=1 -j26 Image dtbs modules
+"$ROOT/tools/write-kernel-module-list.sh" "$KERNEL_OUT"
 rsync -a --delete --exclude=.git/ "$STATIC_KERNEL/" "$KERNEL_PACKAGE/"
 install -m 0644 "$KERNEL_OUT/arch/arm64/boot/Image" "$KERNEL_PACKAGE/Image"
 install -m 0644 "$KERNEL_OUT/arch/arm64/boot/dts/rockchip/rk3588s-orangepi-5.dtb" \
