@@ -2,7 +2,7 @@
 set -euo pipefail
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 
-PROFILE= WIDEVINE= VARIANT= BUILD_ID= SOURCE= KERNEL_OUT=
+PROFILE= WIDEVINE= VARIANT= BUILD_ID= SOURCE= KERNEL_OUT= ANDROID_OUT=
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --profile) PROFILE=$2; shift 2 ;;
@@ -10,13 +10,15 @@ while [[ $# -gt 0 ]]; do
     --variant) VARIANT=$2; shift 2 ;;
     --build-id) BUILD_ID=$2; shift 2 ;;
     --source) SOURCE=$2; shift 2 ;;
+    --android-out) ANDROID_OUT=$2; shift 2 ;;
     --kernel-out) KERNEL_OUT=$2; shift 2 ;;
     *) echo "Unknown option: $1" >&2; exit 2 ;;
   esac
 done
 [[ $VARIANT == userdebug || $VARIANT == user ]] || { echo "Invalid build variant" >&2; exit 2; }
 [[ -n $BUILD_ID ]] || { echo "Missing build ID" >&2; exit 2; }
-PRODUCT_OUT="$SOURCE/out/target/product/opi5_pro"
+ANDROID_OUT=${ANDROID_OUT:-$SOURCE/out}
+PRODUCT_OUT="$ANDROID_OUT/target/product/opi5_pro"
 image_path_exists() {
   local image=$1 path=$2 output
   output=$(debugfs -R "stat $path" "$image" 2>&1) || return 1

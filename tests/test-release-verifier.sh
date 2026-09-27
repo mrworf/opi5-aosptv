@@ -216,4 +216,21 @@ if MOCK_REPO_FAIL=1 MOCK_WIDEVINE_PRESENT=0 run_verifier custom disabled >/dev/n
   exit 1
 fi
 
+# Explicit variant output works without any images at the legacy location and
+# must fail for a missing tree instead of falling back to another variant.
+VARIANT_OUT="$SOURCE/out/user"
+mkdir -p "$VARIANT_OUT/target/product"
+mv "$PRODUCT_OUT" "$VARIANT_OUT/target/product/opi5_pro"
+env PATH="$MOCK_BIN:$PATH" OPI5_KERNEL_PACKAGE_DIR="$PACKAGE_DIR" \
+  "$ROOT/tools/verify-release.sh" --profile custom --widevine disabled --variant user \
+  --build-id test-build --source "$SOURCE" --android-out "$VARIANT_OUT" \
+  --kernel-out "$KERNEL_OUT" >/dev/null
+if env PATH="$MOCK_BIN:$PATH" OPI5_KERNEL_PACKAGE_DIR="$PACKAGE_DIR" \
+    "$ROOT/tools/verify-release.sh" --profile custom --widevine disabled --variant user \
+    --build-id test-build --source "$SOURCE" --android-out "$SOURCE/out/userdebug" \
+    --kernel-out "$KERNEL_OUT" >/dev/null 2>&1; then
+  echo "Missing variant images were accepted" >&2
+  exit 1
+fi
+
 echo "release verifier tests passed"

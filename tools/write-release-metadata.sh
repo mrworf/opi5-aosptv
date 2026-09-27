@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROFILE= WIDEVINE= VARIANT= BUILD_ID= SOURCE= IMAGE= OUTPUT_DIR=
+PROFILE= WIDEVINE= VARIANT= BUILD_ID= SOURCE= IMAGE= OUTPUT_DIR= ANDROID_OUT=
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --profile) PROFILE=${2:-}; shift 2 ;;
@@ -9,6 +9,7 @@ while [[ $# -gt 0 ]]; do
     --variant) VARIANT=${2:-}; shift 2 ;;
     --build-id) BUILD_ID=${2:-}; shift 2 ;;
     --source) SOURCE=${2:-}; shift 2 ;;
+    --android-out) ANDROID_OUT=${2:-}; shift 2 ;;
     --image) IMAGE=${2:-}; shift 2 ;;
     --output-dir) OUTPUT_DIR=${2:-}; shift 2 ;;
     *) echo "Unknown option: $1" >&2; exit 2 ;;
@@ -23,7 +24,8 @@ for tool in awk basename jq realpath sha256sum stat; do
 done
 [[ -x "$SOURCE/.repo/repo/repo" ]] || { echo "Missing repo tool in $SOURCE" >&2; exit 2; }
 
-PRODUCT_OUT="$SOURCE/out/target/product/opi5_pro"
+ANDROID_OUT=${ANDROID_OUT:-$SOURCE/out}
+PRODUCT_OUT="$ANDROID_OUT/target/product/opi5_pro"
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 UBOOT=${OPI5_KERNEL_PACKAGE_DIR:?Missing OPI5_KERNEL_PACKAGE_DIR}/u-boot-rockchip.bin
 for artifact in "$IMAGE" "$IMAGE.sha256" \

@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source "$ROOT/lib/profile.sh"
 source "$ROOT/lib/release-signing.sh"
+source "$ROOT/lib/build-output.sh"
 opi5_resolve_profile "$ROOT" "$@"
 opi5_require_adb_key "$ROOT"
 
@@ -30,11 +31,12 @@ if [[ $OPI5_VARIANT == user ]]; then
   opi5_require_clean_release_sources "$ROOT" "$SOURCE"
 fi
 
-export TMPDIR="$SOURCE/out/opi5/tmp"
-export TMP="$TMPDIR" TEMP="$TMPDIR" GOCACHE="$SOURCE/out/opi5/go-cache"
+opi5_configure_output_tree "$SOURCE" "$OPI5_VARIANT"
+export TMPDIR="$OPI5_ANDROID_OUT/opi5/tmp"
+export TMP="$TMPDIR" TEMP="$TMPDIR" GOCACHE="$OPI5_ANDROID_OUT/opi5/go-cache"
 KERNEL_ROOT="$SOURCE/kernel/opi/rk3588"
-KERNEL_OUT="$SOURCE/out/kernel/opi5"
-KERNEL_PACKAGE="$SOURCE/out/opi5/kernel-package"
+KERNEL_OUT="$OPI5_ANDROID_OUT/kernel/opi5"
+KERNEL_PACKAGE="$OPI5_ANDROID_OUT/opi5/kernel-package"
 STATIC_KERNEL="$SOURCE/device/opi/opi5_pro-kernel"
 mkdir -p "$TMPDIR" "$GOCACHE" "$KERNEL_OUT" "$KERNEL_PACKAGE"
 
@@ -53,7 +55,7 @@ python3 "$ROOT/tools/render-boot-script.py" \
   --output "$KERNEL_PACKAGE/boot.scr" \
   --variant "$OPI5_VARIANT"
 
-PROFILE_MK="$SOURCE/out/opi5/opi5-profile.mk"
+PROFILE_MK="$OPI5_ANDROID_OUT/opi5/opi5-profile.mk"
 export OPI5_BUILD_PROFILE="$OPI5_PROFILE"
 export OPI5_BUILD_VARIANT="$OPI5_VARIANT"
 if [[ $OPI5_WIDEVINE == enabled ]]; then
@@ -89,21 +91,21 @@ m -j26 installclean
 if [[ $OPI5_VARIANT == user ]]; then
   m -j26 target-files-package sign_target_files_apks img_from_target_files
   "$ROOT/tools/sign-release-images.sh" \
-    --source "$SOURCE" --product-out "$SOURCE/out/target/product/opi5_pro" \
+    --source "$SOURCE" --android-out "$OPI5_ANDROID_OUT" --product-out "$OPI5_PRODUCT_OUT" \
     --key-dir "$OPI5_SIGNING_DIR" \
-    --output-dir "$SOURCE/out/opi5/signed/$OPI5_SOURCE_ID"
+    --output-dir "$OPI5_ANDROID_OUT/opi5/signed/$OPI5_SOURCE_ID"
 else
   m -j26 bootimage systemimage vendorimage
 fi
 RELEASE_STAMP=$(date -u +%Y%m%dT%H%M%SZ)
-IMAGE_PATH="$SOURCE/out/target/product/opi5_pro/OrangePi_5-Android17-TV-${OPI5_PROFILE}-${OPI5_VARIANT}-widevine-${OPI5_ENABLE_WIDEVINE}-${RELEASE_STAMP}.img"
+IMAGE_PATH="$OPI5_PRODUCT_OUT/OrangePi_5-Android17-TV-${OPI5_PROFILE}-${OPI5_VARIANT}-widevine-${OPI5_ENABLE_WIDEVINE}-${RELEASE_STAMP}.img"
 OPI5_IMAGE_PATH="$IMAGE_PATH" \
-  "$ROOT/tools/assemble-image.sh" --product-out "$SOURCE/out/target/product/opi5_pro"
+  "$ROOT/tools/assemble-image.sh" --product-out "$OPI5_PRODUCT_OUT"
 "$ROOT/tools/verify-release.sh" \
   --profile "$OPI5_PROFILE" --widevine "$OPI5_WIDEVINE" --variant "$OPI5_VARIANT" \
-  --build-id "$OPI5_SOURCE_ID" --source "$SOURCE" --kernel-out "$KERNEL_OUT"
+  --build-id "$OPI5_SOURCE_ID" --source "$SOURCE" --android-out "$OPI5_ANDROID_OUT" --kernel-out "$KERNEL_OUT"
 "$ROOT/tools/write-release-metadata.sh" \
   --profile "$OPI5_PROFILE" --widevine "$OPI5_WIDEVINE" --variant "$OPI5_VARIANT" \
   --build-id "$OPI5_SOURCE_ID" \
-  --source "$SOURCE" --image "$IMAGE_PATH" \
+  --source "$SOURCE" --android-out "$OPI5_ANDROID_OUT" --image "$IMAGE_PATH" \
   --output-dir "$ROOT/releases/${OPI5_PROFILE}-${OPI5_VARIANT}-widevine-${OPI5_ENABLE_WIDEVINE}-${RELEASE_STAMP}"

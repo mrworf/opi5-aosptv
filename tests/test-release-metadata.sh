@@ -49,4 +49,21 @@ jq -e '
 ' "$OUTPUT/release.json" >/dev/null
 grep -q 'revision="fixed"' "$OUTPUT/source-manifest.xml"
 
+# An explicit variant tree must win over the legacy images, even when both
+# exist. Its hashes and paths are the ones used later by the flash script.
+VARIANT_OUT="$SOURCE/out/user"
+VARIANT_PRODUCT="$VARIANT_OUT/target/product/opi5_pro"
+mkdir -p "$VARIANT_PRODUCT"
+for image in boot system vendor; do
+  printf 'variant-%s' "$image" > "$VARIANT_PRODUCT/$image.img"
+done
+OPI5_KERNEL_PACKAGE_DIR="$PACKAGE_DIR" "$ROOT/tools/write-release-metadata.sh" \
+  --profile custom --widevine enabled --variant user --build-id 0123456789abcdef \
+  --source "$SOURCE" --android-out "$VARIANT_OUT" \
+  --image "$PRODUCT_OUT/release.img" --output-dir "$TEST_ROOT/variant-release" >/dev/null
+jq -e --arg hash "$(sha256sum "$VARIANT_PRODUCT/boot.img" | awk '{print $1}')" '
+  (.artifacts.boot.path | contains("/out/user/target/product/")) and
+  .artifacts.boot.sha256 == $hash and .artifacts.boot.size == 12
+' "$TEST_ROOT/variant-release/release.json" >/dev/null
+
 echo "release metadata tests passed"

@@ -59,10 +59,20 @@ public key under the selected Android source tree. Soong requires source inputs
 to reside below the source root. The staged `.opi5-config/adbkey.pub` is local
 build state and is never part of a Git project; ADB private keys are rejected.
 
-The three isolated source/output slots are `sources/oss`,
-`sources/custom-gapps`, and `sources/custom-widevine`. Android retains the
-upstream internal target directory `out/target/product/opi5_pro`, while final
-image names identify Orange Pi 5.
+The three isolated source slots are `sources/oss`, `sources/custom-gapps`, and
+`sources/custom-widevine`. Within each source slot, builds use separate output
+trees: `out/userdebug` and `out/user`. Each retains its own Android and kernel
+intermediates, host signing tools, temporary files, and partition images. Images
+are under `out/<variant>/target/product/opi5_pro`, while final image names
+identify Orange Pi 5. Switching variants does not overwrite the other variant's
+images or invalidate its compilation cache; the first build of each tree is
+cold. The wrapper still reinstalls the selected variant's product staging tree
+to ensure consistent partition build identities, but keeps compiled intermediates.
+
+For manual `m` invocations from a source checkout, first export
+`OUT_DIR=out/userdebug` (or `out/user`) and use that variant's kernel paths, as
+the wrapper does. Existing legacy `out/target/product/opi5_pro` artifacts and
+their release metadata are left untouched; no automatic migration is performed.
 
 `bootstrap.sh` accepts `OPI5_PUBLIC_GIT_BASE` and defaults to the anonymous
 public GitHub namespace `https://github.com/mrworf/`. Override it with a URL
@@ -91,6 +101,7 @@ Run the fast controller-level checks before a long build:
 bash tests/test-profiles.sh
 bash tests/test-adb-key.sh
 bash tests/test-build-identity.sh
+bash tests/test-build-output.sh
 bash tests/test-release-signing.sh
 bash tests/test-release-verifier.sh
 bash tests/test-release-metadata.sh

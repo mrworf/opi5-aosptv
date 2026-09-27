@@ -116,4 +116,23 @@ if grep -Fq "=$KEY_DIR/bluetooth" "$TEST_ROOT/sign-args" || \
   exit 1
 fi
 
+# Release signing must use host tools from the selected variant, not stale
+# tools from the legacy output tree.
+VARIANT_OUT="$FAKE_SOURCE/out/user"
+mkdir -p "$VARIANT_OUT/host/linux-x86/bin"
+mv "$FAKE_SOURCE/out/host/linux-x86/bin/sign_target_files_apks" \
+  "$FAKE_SOURCE/out/host/linux-x86/bin/img_from_target_files" \
+  "$VARIANT_OUT/host/linux-x86/bin/"
+FAKE_SIGN_ARGS="$TEST_ROOT/variant-sign-args" "$ROOT/tools/sign-release-images.sh" \
+  --source "$FAKE_SOURCE" --android-out "$VARIANT_OUT" --product-out "$PRODUCT_OUT" \
+  --key-dir "$KEY_DIR" --output-dir "$TEST_ROOT/variant-signed-out" >/dev/null
+[[ -s $TEST_ROOT/variant-sign-args ]]
+if FAKE_SIGN_ARGS="$TEST_ROOT/missing-sign-args" "$ROOT/tools/sign-release-images.sh" \
+    --source "$FAKE_SOURCE" --android-out "$FAKE_SOURCE/out/userdebug" \
+    --product-out "$PRODUCT_OUT" --key-dir "$KEY_DIR" \
+    --output-dir "$TEST_ROOT/missing-signed-out" >/dev/null 2>&1; then
+  echo "Missing variant signing tools were accepted" >&2
+  exit 1
+fi
+
 echo "release signing tests passed"

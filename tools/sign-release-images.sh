@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SOURCE= PRODUCT_OUT= KEY_DIR= OUTPUT_DIR=
+SOURCE= PRODUCT_OUT= KEY_DIR= OUTPUT_DIR= ANDROID_OUT=
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --source) SOURCE=${2:-}; shift 2 ;;
+    --android-out) ANDROID_OUT=${2:-}; shift 2 ;;
     --product-out) PRODUCT_OUT=${2:-}; shift 2 ;;
     --key-dir) KEY_DIR=${2:-}; shift 2 ;;
     --output-dir) OUTPUT_DIR=${2:-}; shift 2 ;;
@@ -18,8 +19,10 @@ for tool in unzip; do
   command -v "$tool" >/dev/null || { echo "Missing host tool: $tool" >&2; exit 2; }
 done
 
-SIGNER="$SOURCE/out/host/linux-x86/bin/sign_target_files_apks"
-IMAGE_BUILDER="$SOURCE/out/host/linux-x86/bin/img_from_target_files"
+# Preserve compatibility with previously generated, unpartitioned output trees.
+ANDROID_OUT=${ANDROID_OUT:-$SOURCE/out}
+SIGNER="$ANDROID_OUT/host/linux-x86/bin/sign_target_files_apks"
+IMAGE_BUILDER="$ANDROID_OUT/host/linux-x86/bin/img_from_target_files"
 [[ -x $SIGNER && -x $IMAGE_BUILDER ]] || {
   echo "Missing release tools; build sign_target_files_apks and img_from_target_files" >&2
   exit 2
